@@ -1,0 +1,32 @@
+{
+  "AC-1": [
+    "test_delivery_install.InstallAcceptance.test_ac1_offline_install_console_help",
+    "test_delivery_install.InstallAcceptance.test_ac1_installed_console_plans_outside_repository",
+    "test_delivery_install.InstallAcceptance.test_ac1_installed_metadata_and_import_location"
+  ],
+  "AC-2": [
+    "test_plan_acceptance.PlanAcceptance.test_ac2_manifest_exact_content_and_overlap"
+  ],
+  "AC-3": [
+    "test_plan_acceptance.PlanAcceptance.test_ac3_missing",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_outside_and_prefix_collision",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_symlinks",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_symlink_parent",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_special_and_empty"
+  ],
+  "AC-4": [
+    "test_plan_acceptance.PlanAcceptance.test_ac4_sensitive_names_and_directories",
+    "test_plan_acceptance.PlanAcceptance.test_ac4_invalid_roots"
+  ],
+  "AC-5": [
+    "test_plan_acceptance.PlanAcceptance.test_ac5_no_input_modification",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac5_no_network_operations"
+  ],
+  "AC-6": [
+    "test_plan_acceptance.PlanAcceptance.test_ac6_io_error",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_size_change_during_read",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_same_size_mtime_change_during_read",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_unchanged_input_succeeds",
+    "test_delivery_install.InstallAcceptance.test_ac1_offline_install_console_help"
+  ]
+}

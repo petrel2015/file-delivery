@@ -1,0 +1,76 @@
+{
+  "schema": "file-delivery/resume-preparation/v1",
+  "checked_at": "2026-09-26T16:07:35.507396+00:00",
+  "status": "prepared_not_dispatched",
+  "original_state_sha256": "233ee668f1899cc9ed47f1bea169e30f7bd0eb4bcfe66b735ef7ffbeb1c3fb6e",
+  "original_status": "worker_failed_or_unknown",
+  "original_exit_code": -9,
+  "original_stop_reason": "timeout",
+  "original_pid_persisted": false,
+  "original_main_process_stopped_evidence": [
+    "Original controller recorded subprocess returncode -9 after bounded_process returned.",
+    "Frozen 9e94537 helper kills its process group and calls wait before returning.",
+    "Current process scan found no matching candidate cwd or original dispatch arguments."
+  ],
+  "frozen_helper_has_killpg_and_wait": true,
+  "process_scan": {
+    "node_zcode_python_processes_inspected": 98,
+    "cwd_readable": 98,
+    "inspection_errors": [],
+    "matching_candidate_cwd": [],
+    "matching_run_arguments": []
+  },
+  "process_scan_limit": "Original PID/PGID were not persisted; scan cannot independently identify every detached descendant or remote provider request.",
+  "candidate_sha": "586dfb8233d4fc4bf7ce81bbc663b11468e5c882",
+  "candidate_tree": "00aee5306e1d63a03ca30a7d06191ef93e2ef5ed",
+  "original_baseline_tree": "00aee5306e1d63a03ca30a7d06191ef93e2ef5ed",
+  "candidate_status": "",
+  "candidate_diff": "",
+  "contract_sha256_unchanged": "11dbf9640c416c9e370468bbd5b74dbfbcc8ef30896894ca9ce3e33e566b211d",
+  "original_acceptance_sha256_unchanged": "3cd57deeec265bd57dde732bb9856b527f60f6d7237ccb478cb8d8d07b36b0b2",
+  "discovered_test_ids": [
+    "test_plan_acceptance.PlanAcceptance.test_ac2_manifest_exact_content_and_overlap",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_missing",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_outside_and_prefix_collision",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_special_and_empty",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_symlink_parent",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_symlinks",
+    "test_plan_acceptance.PlanAcceptance.test_ac4_invalid_roots",
+    "test_plan_acceptance.PlanAcceptance.test_ac4_sensitive_names_and_directories",
+    "test_plan_acceptance.PlanAcceptance.test_ac5_no_input_modification",
+    "test_plan_acceptance.PlanAcceptance.test_ac6_io_error",
+    "test_delivery_install.InstallAcceptance.test_ac1_installed_console_plans_outside_repository",
+    "test_delivery_install.InstallAcceptance.test_ac1_installed_metadata_and_import_location",
+    "test_delivery_install.InstallAcceptance.test_ac1_offline_install_console_help",
+    "test_delivery_runtime.ProbeHarnessTests.test_read_injection_supports_equivalent_readers",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac5_no_network_operations",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_same_size_mtime_change_during_read",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_size_change_during_read",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_unchanged_input_succeeds"
+  ],
+  "verification_mapping_valid": true,
+  "supplemental_harness_selftest": {
+    "test_methods_passed": 1,
+    "reader_mode_combinations_passed": 18
+  },
+  "worker_invocations_this_preparation": 0,
+  "original_usage_complete": false,
+  "original_money_cost": null,
+  "continuation_plan": {
+    "original_run": "/Users/aquarist/IdeaProjects/.agent-relay-runs/file-delivery-fd001-qualified",
+    "additional_worker_submissions_max": 2,
+    "continuation_submissions_max": 1,
+    "automatic_controller_repairs_max": 1,
+    "timeout_seconds_each": 600,
+    "dispatch_authorized_now": false,
+    "awaiting": "AgentRelay main conversation verified framework command and execution budget confirmation"
+  },
+  "supplemental_file_sha256": {
+    "tests/relay_supplemental/runtime_probe.py": "1fde1196495094a5af77739b86d841f4d3e3abd7b4ccf1da57ceec9aff8284a9",
+    "tests/relay_supplemental/test_delivery_runtime.py": "e71af651fff66f5919cb9ef01bb28717874d06a01bbecf02dfffc5f786773313",
+    "tests/relay_supplemental/test_delivery_install.py": "d987d0a9234e3e77c02e14769cb061b34efcbaef1c621774d7bca4e5f746cc52"
+  },
+  "verification_mapping_sha256": "334f8ea4eb563f7f3bd1585930d232ab438f92d18e9452de2141698907531edd",
+  "python_311_syntax_parse": "passed",
+  "python_311_runtime_execution": "not_performed"
+}
