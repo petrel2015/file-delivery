@@ -1,0 +1,73 @@
+{
+  "schema": "file-delivery/execution-evidence/v1",
+  "status": "blocked_worker_timeout_unknown",
+  "contract_revision": 2,
+  "contract_sha256": "11dbf9640c416c9e370468bbd5b74dbfbcc8ef30896894ca9ce3e33e566b211d",
+  "baseline_sha": "eb573a207a57877392903fa91e2a6702f2caab83",
+  "trusted_tests": {
+    "tests/acceptance/test_plan_acceptance.py": "3cd57deeec265bd57dde732bb9856b527f60f6d7237ccb478cb8d8d07b36b0b2"
+  },
+  "framework_dispatch_commit": "72aadc4",
+  "framework_permission_fix_commit": "9e94537",
+  "prelaunch_failure": {
+    "worker_invocations": 0,
+    "cause": "credential parent mode 0755 instead of 0700",
+    "reconciliation": "verified before Worker launch; no-prompt import success after chmod",
+    "money_cost": null
+  },
+  "worker_invocations": 1,
+  "business_repair_invocations": 0,
+  "candidate_sha": "586dfb8233d4fc4bf7ce81bbc663b11468e5c882",
+  "candidate_has_business_changes": false,
+  "duration_seconds": 180.139,
+  "stop_reason": "timeout",
+  "exit_code": -9,
+  "correlated_terminal_received": false,
+  "model_requests": [
+    {
+      "provider_id": "account:bigmodel-individual-coding-plan",
+      "model_id": "GLM-5.3",
+      "status": "completed",
+      "input_tokens": 12973,
+      "output_tokens": 108,
+      "reasoning_tokens": 0,
+      "cache_read_input_tokens": 5440,
+      "cache_creation_input_tokens": 0,
+      "provider_total_tokens": 13081,
+      "computed_total_tokens": 13081,
+      "retry_count": 0,
+      "tool_call_count": 2,
+      "variant": "high"
+    },
+    {
+      "provider_id": "account:bigmodel-individual-coding-plan",
+      "model_id": "GLM-5.3",
+      "status": "completed",
+      "input_tokens": 14266,
+      "output_tokens": 113,
+      "reasoning_tokens": 0,
+      "cache_read_input_tokens": 12928,
+      "cache_creation_input_tokens": 0,
+      "provider_total_tokens": 14379,
+      "computed_total_tokens": 14379,
+      "retry_count": 0,
+      "tool_call_count": 2,
+      "variant": "high"
+    }
+  ],
+  "observed_usage_subtotal": {
+    "input_tokens": 27239,
+    "output_tokens": 221,
+    "cache_read_input_tokens": 18368,
+    "provider_total_tokens": 27460
+  },
+  "usage_complete": false,
+  "money_cost": null,
+  "codex_usage": null,
+  "codex_business_code_review_rounds": 0,
+  "business_candidate_tests_run": 0,
+  "accepted": false,
+  "automatic_retry_performed": false,
+  "original_runtime_state_sha256": "233ee668f1899cc9ed47f1bea169e30f7bd0eb4bcfe66b735ef7ffbeb1c3fb6e",
+  "known_reporting_defect": "Original state claimed usage_complete=true based only on completed rows; corrected here, original preserved."
+}
