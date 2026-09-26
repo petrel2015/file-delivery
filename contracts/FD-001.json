@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_id": "FD-001",
-  "revision": 1,
+  "revision": 2,
   "objective": "Implement an offline, read-only delivery manifest planner as the first complete file-delivery vertical slice.",
   "scope": [
     "pyproject.toml",
@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-4",
-      "behavior": "Reject sensitive components .git,.ssh,.aws,.kube and basenames .env,.env.*,*.pem,*.key,credentials*,secret* (case-insensitive); explicit root is an existing real directory with no symlink components. Invalid root yields INVALID_ROOT. Reject entire plan rather than silently skipping sensitive files.",
+      "behavior": "Reject sensitive components .git,.ssh,.aws,.kube and basenames .env,.env.*,*.pem,*.key,credentials*,secret* (case-insensitive); explicit root is an existing real directory with no symlink components. Invalid root yields INVALID_ROOT. Reject entire plan rather than silently skipping sensitive files. Sensitive matches yield SENSITIVE_PATH and exit 2.",
       "verification": "sensitive-boundaries"
     },
     {
@@ -52,7 +52,7 @@
   "context": [
     "Read AGENTS.md and docs/plans/implementation.md.",
     "Codex owns contracts, trusted acceptance checks, review and publication. Worker may only modify exact scope paths; tests/acceptance and contracts are controller-owned.",
-    "No existing business implementation. General AgentRelay dispatch is unavailable: do not execute the fixed trial fixture as this task.",
+    "Dispatch requires the separately verified generic AgentRelay entry. Never execute the fixed trial fixture as this task.",
     "No network operations, external sending or credential access are authorized by this task.",
     "Freeze trusted tests and contract before actual dispatch; criteria changes require a new revision."
   ],
