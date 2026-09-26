@@ -117,6 +117,25 @@ class PlanAcceptance(unittest.TestCase):
         child.mkdir()
         self.error([alias / 'child'], 'INVALID_ROOT', alias / 'child')
 
+    def test_ac6_io_error(self):
+        # CPython audit hooks cover builtins.open, pathlib and os.open without
+        # constraining which of those equivalent implementations the worker uses.
+        script = """import os, runpy, sys
+blocked = os.path.abspath(sys.argv[1])
+def audit(event, args):
+    if event == 'open' and isinstance(args[0], (str, bytes)) and os.path.abspath(os.fsdecode(args[0])) == blocked:
+        raise PermissionError('controller injected unreadable input')
+sys.addaudithook(audit)
+sys.argv = ['file-delivery', 'plan', blocked, '--root', sys.argv[2], '--json']
+runpy.run_module('file_delivery', run_name='__main__')
+"""
+        env = dict(os.environ, PYTHONPATH=str(PROJECT / 'src'), PYTHONDONTWRITEBYTECODE='1')
+        r = subprocess.run([sys.executable, '-B', '-c', script, str(self.file), str(self.root)], env=env, cwd=PROJECT, capture_output=True, text=True, timeout=15)
+        self.assertEqual(r.returncode, 2, r.stderr)
+        result = json.loads(r.stdout)
+        self.assertEqual(result['status'], 'error')
+        self.assertEqual(result['error']['code'], 'IO_ERROR')
+
     def test_ac5_no_input_modification(self):
         def snapshot():
             return [(p.relative_to(self.root).as_posix(), p.stat().st_mode, p.stat().st_size, p.stat().st_mtime_ns, p.read_bytes() if p.is_file() else None) for p in sorted(self.root.rglob('*'))]
