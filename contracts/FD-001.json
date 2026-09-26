@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-001",
+  "revision": 1,
+  "objective": "Implement an offline, read-only delivery manifest planner as the first complete file-delivery vertical slice.",
+  "scope": [
+    "pyproject.toml",
+    "src/file_delivery/__init__.py",
+    "src/file_delivery/__main__.py",
+    "src/file_delivery/cli.py",
+    "src/file_delivery/planning.py",
+    "src/file_delivery/errors.py",
+    "tests/test_planning.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Python >=3.11 package installs locally and exposes file-delivery plan PATH [PATH ...] --root ROOT --json and --help; runtime uses standard library only.",
+      "verification": "install-and-cli"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "For regular files and nested directories inside an explicit root, return one JSON object: schema_version=1, status=planned, files sorted by root-relative POSIX path with path,size_bytes,sha256, file_count,total_bytes; contents hashed with SHA-256; duplicate and overlapping inputs deduplicated; Unicode and spaces supported.",
+      "verification": "manifest-content"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "Reject missing paths with INPUT_NOT_FOUND, any input or traversed descendant symlink with SYMLINK_NOT_ALLOWED, paths outside root with PATH_NOT_ALLOWED, special files with UNSUPPORTED_FILE_TYPE, and no selected regular files with EMPTY_SELECTION. Return exit 2 and JSON status=error,error.code,error.message without a partial success manifest.",
+      "verification": "input-boundaries"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Reject sensitive components .git,.ssh,.aws,.kube and basenames .env,.env.*,*.pem,*.key,credentials*,secret* (case-insensitive); explicit root is an existing real directory with no symlink components. Invalid root yields INVALID_ROOT. Reject entire plan rather than silently skipping sensitive files.",
+      "verification": "sensitive-boundaries"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "Planning reads inputs only: no network, archive, password, upload, mail, state database or input modification. Do not follow directory links. For valid invocation stdout contains only JSON; diagnostics exclude file contents.",
+      "verification": "no-side-effects"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "IO failures return IO_ERROR and exit 2. Changes observed during hashing via before/after file metadata yield INPUT_CHANGED and exit 2. This detects observed changes, not an adversarial filesystem snapshot guarantee. Test every required behavior with nonempty unittest discovery and clean installation smoke test.",
+      "verification": "errors-and-tests"
+    }
+  ],
+  "preferences": [
+    "Clear small modules; equivalent correct implementations accepted.",
+    "Keep CLI suitable for Hermes; no model or provider coupling."
+  ],
+  "context": [
+    "Read AGENTS.md and docs/plans/implementation.md.",
+    "Codex owns contracts, trusted acceptance checks, review and publication. Worker may only modify exact scope paths; tests/acceptance and contracts are controller-owned.",
+    "No existing business implementation. General AgentRelay dispatch is unavailable: do not execute the fixed trial fixture as this task.",
+    "No network operations, external sending or credential access are authorized by this task.",
+    "Freeze trusted tests and contract before actual dispatch; criteria changes require a new revision."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 2,
+    "timeout_seconds": 180
+  }
+}

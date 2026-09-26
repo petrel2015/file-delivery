@@ -1,0 +1,19 @@
+{
+  "schema": "file-delivery/planning-evidence/v1",
+  "framework_sha": "cde1b9da4cf722152615d15e4e124e0065cf2c36",
+  "status": "blocked_missing_general_dispatch",
+  "contract_sha256": "601b79bd5cc4ec11eb88516d63a97933046fc9842c54edd3bede760ab771650d",
+  "contract_validation": "passed",
+  "run_id": "fd-001-planning",
+  "run_created": true,
+  "worker_invocations": 0,
+  "worker_attempts": [],
+  "candidate_sha": null,
+  "business_tests_executed": 0,
+  "codex_business_code_review_rounds": 0,
+  "codex_planning_review_rounds": 1,
+  "worker_usage": null,
+  "codex_usage": null,
+  "money_cost": null,
+  "publication": "blocked_missing_remote"
+}
