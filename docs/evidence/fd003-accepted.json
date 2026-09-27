@@ -1,0 +1,992 @@
+{
+  "work_id": "FD-003",
+  "accepted_candidate": "2b2d863c8ae021419428cc0e83bba433bddec179",
+  "feature_commit": "f15a3f9f17a353ef9726b2f1ce112e2209d606ba",
+  "contract_digest": "9e524cf551ecffd805c92b83a9bf1cb2d49d0bb12f5bcc6161ba09a504a7d2f7",
+  "additional_contract_digest": "0b360abd2792069926a6f9bdc10f16f1b146d66fe245025740c4a653c6b34fdf",
+  "lineage": {
+    "classification": "additional_repair",
+    "parent_work_id": "FD-003",
+    "parent_run": "file-delivery-fd003",
+    "parent_candidate": "4c7435a256eef60c39017f63b5e79dff17d32a9a",
+    "frozen_supplemental_baseline": "dfda6353f8b8db5131c1f14007f65980b35ad151",
+    "parent_submissions": 2,
+    "additional_submissions": 1,
+    "feature_total_submission_limit": 3,
+    "timeout_seconds": 120,
+    "auto_repairs": 0,
+    "old_attempts_modified": false
+  },
+  "scope_hashes": {
+    "src/file_delivery/ledger.py": "c65899d915b560a163652b08c206053228772b1b1c594103cbae6a94fc685b07",
+    "src/file_delivery/cli.py": "367bf938620daa0a7624458885de508039ee8a405b57fce9ba73c3ceda73f3b6",
+    "src/file_delivery/errors.py": "4715bc27e43a36cfed9c82a5a2b7602f381583b19cfbef818b25fda7e15070e9",
+    "tests/test_ledger.py": "a9859c369b685b1640d9ac2113b2d3216aae1681ad23c0b084c6b38de84f2ef8",
+    "tests/test_cli.py": "23dc576ddad3031587877172e00ba6d8df7ce53aedb6d1ee29bb0bbca4e1b0db"
+  },
+  "trusted_test_fingerprints": {
+    "tests/acceptance/test_plan_acceptance.py": "3cd57deeec265bd57dde732bb9856b527f60f6d7237ccb478cb8d8d07b36b0b2",
+    "tests/relay_supplemental/runtime_probe.py": "1fde1196495094a5af77739b86d841f4d3e3abd7b4ccf1da57ceec9aff8284a9",
+    "tests/relay_supplemental/test_delivery_install.py": "d987d0a9234e3e77c02e14769cb061b34efcbaef1c621774d7bca4e5f746cc52",
+    "tests/relay_supplemental/test_delivery_runtime.py": "e71af651fff66f5919cb9ef01bb28717874d06a01bbecf02dfffc5f786773313",
+    "tests/fd002/test_archive_acceptance.py": "8fbb026761e10217f07ba3b3c542bae76308c4e890333329c5555cd6e524a3c3",
+    "tests/fd002_repair/test_archive_error_acceptance.py": "8ce0a6227b55107ec80a4fb85bb75af7ad982ac5764f44fbea614fb4f549f00f",
+    "tests/fd003/test_ledger_acceptance.py": "ba8077af5cd6426d23485791024c242363ae20fea41f4f28f757d1d59ea8b4b9",
+    "tests/fd003_repair/test_pending_bundle_acceptance.py": "dcf8888d622c8c78cf5bff5065761392dac37f011574738eed38617e45756c7c"
+  },
+  "trusted_verification": {
+    "status": "passed",
+    "candidate_sha": "2b2d863c8ae021419428cc0e83bba433bddec179",
+    "exit_code": 0,
+    "stop_reason": null,
+    "report": {
+      "skipped_test_ids": [],
+      "failed_tests": [],
+      "test_ids": [
+        "test_plan_acceptance.PlanAcceptance.test_ac2_manifest_exact_content_and_overlap",
+        "test_plan_acceptance.PlanAcceptance.test_ac3_missing",
+        "test_plan_acceptance.PlanAcceptance.test_ac3_outside_and_prefix_collision",
+        "test_plan_acceptance.PlanAcceptance.test_ac3_special_and_empty",
+        "test_plan_acceptance.PlanAcceptance.test_ac3_symlink_parent",
+        "test_plan_acceptance.PlanAcceptance.test_ac3_symlinks",
+        "test_plan_acceptance.PlanAcceptance.test_ac4_invalid_roots",
+        "test_plan_acceptance.PlanAcceptance.test_ac4_sensitive_names_and_directories",
+        "test_plan_acceptance.PlanAcceptance.test_ac5_no_input_modification",
+        "test_plan_acceptance.PlanAcceptance.test_ac6_io_error",
+        "test_delivery_install.InstallAcceptance.test_ac1_installed_console_plans_outside_repository",
+        "test_delivery_install.InstallAcceptance.test_ac1_installed_metadata_and_import_location",
+        "test_delivery_install.InstallAcceptance.test_ac1_offline_install_console_help",
+        "test_delivery_runtime.ProbeHarnessTests.test_read_injection_supports_equivalent_readers",
+        "test_delivery_runtime.RuntimeAcceptance.test_ac5_no_network_operations",
+        "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_same_size_mtime_change_during_read",
+        "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_size_change_during_read",
+        "test_delivery_runtime.RuntimeAcceptance.test_ac6_unchanged_input_succeeds",
+        "test_archive_acceptance.ArchiveAcceptance.test_observed_change_cleanup_and_no_network",
+        "test_archive_acceptance.ArchiveAcceptance.test_optional_dependency_and_public_api",
+        "test_archive_acceptance.ArchiveAcceptance.test_output_rejections_and_planner_errors",
+        "test_archive_acceptance.ArchiveAcceptance.test_roundtrip_aes_and_secrets",
+        "test_archive_acceptance.ArchiveAcceptance.test_sevenzip_compatibility",
+        "test_archive_acceptance.ArchiveAcceptance.test_wrong_password_corruption_manifest_and_unsafe_entries",
+        "test_archive_error_acceptance.ArchiveErrorAcceptance.test_decompression_error_is_safe",
+        "test_archive_error_acceptance.ArchiveErrorAcceptance.test_invalid_utf8_files_return_json",
+        "test_archive_error_acceptance.ArchiveErrorAcceptance.test_worker_cli_field_regression",
+        "test_ledger_acceptance.LedgerAcceptance.test_conflicts_preserve_old_artifacts",
+        "test_ledger_acceptance.LedgerAcceptance.test_handled_failure_recovery_at_both_boundaries",
+        "test_ledger_acceptance.LedgerAcceptance.test_private_paths_keys_and_network",
+        "test_ledger_acceptance.LedgerAcceptance.test_process_exit_recovery_and_concurrent_duplicate",
+        "test_ledger_acceptance.LedgerAcceptance.test_roundtrip_idempotent_status_and_secret_permissions",
+        "test_pending_bundle_acceptance.PendingBundleAcceptance.test_fresh_task_can_create_first_bundle",
+        "test_pending_bundle_acceptance.PendingBundleAcceptance.test_verify_failure_preserves_then_recovers_same_bundle"
+      ],
+      "tests_run": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "successful": true
+    },
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "70680cfba46be3113ce2fdd37329c95519d438c853b5e3c365c3328e2cff24e4",
+    "stdout_bytes": 0,
+    "stderr_bytes": 4402,
+    "helper_sha256": "4357dfd7c992882ec537d57645b32820b2d812b259178ececea7153003eb79b6"
+  },
+  "integrated_verification": {
+    "tests_run": 110,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "successful": true
+  },
+  "installed_smoke": {
+    "console": "/Users/aquarist/IdeaProjects/file-delivery/.venv/bin/file-delivery",
+    "outside_repository": true,
+    "PYTHONPATH_removed": true,
+    "plan": "passed",
+    "deliver_local_first": "stored-local",
+    "deliver_local_repeat": "same_task_same_password_same_archive",
+    "status": "stored-local",
+    "verify": "verified",
+    "object_hash_readback": "passed",
+    "password_not_in_json": true,
+    "all_exit_codes": 0,
+    "fixture_cleanup": "temporary directory removed after assertions"
+  },
+  "review": {
+    "candidate_sha": "2b2d863c8ae021419428cc0e83bba433bddec179",
+    "decision": "accepted",
+    "codex_review_count": 3,
+    "scope": "Two original reviews plus one explicit additional targeted review; no remaining demonstrated required defect.",
+    "trusted_tests": 34,
+    "worker_tests": 76,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "verified_repair": "Existing bundle is never deleted/re-encrypted on verification failure; byte-preservation and subsequent same-identity recovery pass."
+  },
+  "codex_review_count": 3,
+  "attempts": [
+    {
+      "number": 1,
+      "kind": "initial",
+      "status": "changes_required",
+      "candidate_sha": "21c7977e386f59882ecb86a8e25504efe2edc42a",
+      "failure_reason": null,
+      "duration_seconds": 295.413,
+      "exit_code": 0,
+      "stop_reason": null,
+      "qualified": true,
+      "execution_profile": {
+        "reasoning": "low",
+        "max_output_tokens": 8192
+      },
+      "model_requests": [
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 13924,
+          "output_tokens": 89,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 11008,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 14013,
+          "computed_total_tokens": 14013,
+          "retry_count": 0,
+          "tool_call_count": 2,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 15513,
+          "output_tokens": 28,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 13888,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 15541,
+          "computed_total_tokens": 15541,
+          "retry_count": 0,
+          "tool_call_count": 2,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 15602,
+          "output_tokens": 151,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 15488,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 15753,
+          "computed_total_tokens": 15753,
+          "retry_count": 0,
+          "tool_call_count": 4,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 21797,
+          "output_tokens": 77,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 15552,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 21874,
+          "computed_total_tokens": 21874,
+          "retry_count": 0,
+          "tool_call_count": 2,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 23572,
+          "output_tokens": 7174,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 21760,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 30746,
+          "computed_total_tokens": 30746,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 31264,
+          "output_tokens": 171,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 23552,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 31435,
+          "computed_total_tokens": 31435,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 31491,
+          "output_tokens": 3381,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 31232,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 34872,
+          "computed_total_tokens": 34872,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 34927,
+          "output_tokens": 354,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 31488,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 35281,
+          "computed_total_tokens": 35281,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 35338,
+          "output_tokens": 392,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 34880,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 35730,
+          "computed_total_tokens": 35730,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 35786,
+          "output_tokens": 173,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 35328,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 35959,
+          "computed_total_tokens": 35959,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 36094,
+          "output_tokens": 2931,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 35776,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 39025,
+          "computed_total_tokens": 39025,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 39081,
+          "output_tokens": 502,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 36032,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 39583,
+          "computed_total_tokens": 39583,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 39639,
+          "output_tokens": 917,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 39040,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 40556,
+          "computed_total_tokens": 40556,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 40611,
+          "output_tokens": 2261,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 39616,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 42872,
+          "computed_total_tokens": 42872,
+          "retry_count": 0,
+          "tool_call_count": 0,
+          "variant": "low"
+        }
+      ],
+      "request_budget": {
+        "request_budget_verified": true,
+        "requests": [
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          }
+        ],
+        "boundary": "outgoing client parameters; not provider enforcement or complete billing"
+      },
+      "usage_complete": true,
+      "money_cost": null,
+      "run_classification": "original"
+    },
+    {
+      "number": 2,
+      "kind": "repair",
+      "status": "controller_error_outcome_unknown",
+      "candidate_sha": null,
+      "failure_reason": "worker_scope_violation",
+      "duration_seconds": 150.486,
+      "exit_code": 0,
+      "stop_reason": null,
+      "qualified": true,
+      "execution_profile": {
+        "reasoning": "low",
+        "max_output_tokens": 8192
+      },
+      "model_requests": [
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 14394,
+          "output_tokens": 121,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 11008,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 14515,
+          "computed_total_tokens": 14515,
+          "retry_count": 0,
+          "tool_call_count": 3,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 19865,
+          "output_tokens": 2032,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 14336,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 21897,
+          "computed_total_tokens": 21897,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 25402,
+          "output_tokens": 1659,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 19840,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 27061,
+          "computed_total_tokens": 27061,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 27118,
+          "output_tokens": 422,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 25344,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 27540,
+          "computed_total_tokens": 27540,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 27597,
+          "output_tokens": 809,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 27072,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 28406,
+          "computed_total_tokens": 28406,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 28463,
+          "output_tokens": 303,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 27584,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 28766,
+          "computed_total_tokens": 28766,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 28823,
+          "output_tokens": 256,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 28416,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 29079,
+          "computed_total_tokens": 29079,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 29136,
+          "output_tokens": 403,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 28800,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 29539,
+          "computed_total_tokens": 29539,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 29596,
+          "output_tokens": 162,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 29120,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 29758,
+          "computed_total_tokens": 29758,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 33030,
+          "output_tokens": 113,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 29568,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 33143,
+          "computed_total_tokens": 33143,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 35780,
+          "output_tokens": 1299,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 33024,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 37079,
+          "computed_total_tokens": 37079,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 37135,
+          "output_tokens": 566,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 35776,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 37701,
+          "computed_total_tokens": 37701,
+          "retry_count": 0,
+          "tool_call_count": 2,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 37810,
+          "output_tokens": 1134,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 37120,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 38944,
+          "computed_total_tokens": 38944,
+          "retry_count": 0,
+          "tool_call_count": 0,
+          "variant": "low"
+        }
+      ],
+      "request_budget": {
+        "request_budget_verified": true,
+        "requests": [
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          }
+        ],
+        "boundary": "outgoing client parameters; not provider enforcement or complete billing"
+      },
+      "usage_complete": true,
+      "money_cost": null,
+      "run_classification": "original"
+    },
+    {
+      "number": 1,
+      "kind": "initial",
+      "status": "awaiting_review",
+      "candidate_sha": "2b2d863c8ae021419428cc0e83bba433bddec179",
+      "failure_reason": null,
+      "duration_seconds": 67.682,
+      "exit_code": 0,
+      "stop_reason": null,
+      "qualified": true,
+      "execution_profile": {
+        "reasoning": "low",
+        "max_output_tokens": 8192
+      },
+      "model_requests": [
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 13254,
+          "output_tokens": 102,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 11008,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 13356,
+          "computed_total_tokens": 13356,
+          "retry_count": 0,
+          "tool_call_count": 2,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 22541,
+          "output_tokens": 869,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 13248,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 23410,
+          "computed_total_tokens": 23410,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 23471,
+          "output_tokens": 699,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 22528,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 24170,
+          "computed_total_tokens": 24170,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 24230,
+          "output_tokens": 110,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 23424,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 24340,
+          "computed_total_tokens": 24340,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 24607,
+          "output_tokens": 204,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 24192,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 24811,
+          "computed_total_tokens": 24811,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 24871,
+          "output_tokens": 134,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 24576,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 25005,
+          "computed_total_tokens": 25005,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 25065,
+          "output_tokens": 133,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 24832,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 25198,
+          "computed_total_tokens": 25198,
+          "retry_count": 0,
+          "tool_call_count": 1,
+          "variant": "low"
+        },
+        {
+          "provider_id": "account:bigmodel-individual-coding-plan",
+          "model_id": "GLM-5.3",
+          "status": "completed",
+          "input_tokens": 25258,
+          "output_tokens": 484,
+          "reasoning_tokens": 0,
+          "cache_read_input_tokens": 25024,
+          "cache_creation_input_tokens": 0,
+          "provider_total_tokens": 25742,
+          "computed_total_tokens": 25742,
+          "retry_count": 0,
+          "tool_call_count": 0,
+          "variant": "low"
+        }
+      ],
+      "request_budget": {
+        "request_budget_verified": true,
+        "requests": [
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          },
+          {
+            "model": "GLM-5.3",
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking_type": "enabled",
+            "valid": true
+          }
+        ],
+        "boundary": "outgoing client parameters; not provider enforcement or complete billing"
+      },
+      "usage_complete": true,
+      "money_cost": null,
+      "run_classification": "additional_repair"
+    }
+  ],
+  "usage_summary": {
+    "observed_provider_tokens": 1002700,
+    "usage_complete": true,
+    "incomplete_attempts": [],
+    "money_cost": null
+  },
+  "codex_usage": null,
+  "money_cost": null,
+  "prior_failed_evidence": "fd003-review-blocked.json",
+  "limitations": [
+    "Local single-host trusted-user POSIX locks; no distributed or Windows qualification.",
+    "Password file protected by Unix permissions, not encrypted at rest.",
+    "Retry requires unchanged readable input; status does not require sources.",
+    "No external object provider, SMTP, link expiry or delivery/read receipts."
+  ]
+}

@@ -2,6 +2,7 @@
   "work_items": [
     {
       "work_id": "FD-001",
+      "worker_submissions": 4,
       "observed_provider_tokens": 405022,
       "usage_complete": false,
       "incomplete_attempts": [
@@ -13,6 +14,7 @@
     },
     {
       "work_id": "FD-002",
+      "worker_submissions": 3,
       "observed_provider_tokens": 571615,
       "usage_complete": true,
       "incomplete_attempts": [],
@@ -21,16 +23,24 @@
     },
     {
       "work_id": "FD-003",
-      "observed_provider_tokens": 816668,
+      "worker_submissions": 3,
+      "observed_provider_tokens": 1002700,
       "usage_complete": true,
       "incomplete_attempts": [],
       "money_cost": null,
-      "codex_review_count": 2
+      "codex_review_count": 3
     }
   ],
-  "observed_provider_tokens": 1793305,
+  "worker_submissions": 10,
+  "repairs": {
+    "ordinary": 3,
+    "explicit_additional": 2,
+    "total": 5
+  },
+  "codex_review_count": 8,
+  "observed_provider_tokens": 1979337,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,
-  "scope": "All real project Worker attempts to this point, including failed and interrupted calls."
+  "scope": "Every real Worker submission for FD001-003, including historical interrupted calls and both explicitly linked additional repairs. Cache-only manual qualification did not call a model."
 }
