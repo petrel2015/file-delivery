@@ -18,9 +18,17 @@
       "incomplete_attempts": [],
       "money_cost": null,
       "codex_review_count": 3
+    },
+    {
+      "work_id": "FD-003",
+      "observed_provider_tokens": 816668,
+      "usage_complete": true,
+      "incomplete_attempts": [],
+      "money_cost": null,
+      "codex_review_count": 2
     }
   ],
-  "observed_provider_tokens": 976637,
+  "observed_provider_tokens": 1793305,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,
