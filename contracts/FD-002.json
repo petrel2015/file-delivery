@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-002",
+  "revision": 1,
+  "objective": "Add a complete local AES ZIP bundle and read-only decryption verification slice.",
+  "scope": [
+    "pyproject.toml",
+    "src/file_delivery/cli.py",
+    "src/file_delivery/errors.py",
+    "src/file_delivery/archive.py",
+    "tests/test_archive.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Add pack PATH... --root ROOT --output-dir DIR --json and verify DIR [--password-file FILE] --json; preserve plan and all FD001 behavior. Python>=3.11. Archive dependency is optional extra archive=[pyzipper==0.4.0]; plain plan install remains standard-library-only. Missing optional dependency yields DEPENDENCY_MISSING exit2 without traceback. Export archive.pack(paths,root,output_dir) and archive.verify(bundle_dir,password_file=None) returning JSON-serializable dictionaries.",
+      "verification": "cli-and-dependency"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "pack calls existing planner and creates new output directory outside root containing exactly archive.zip, manifest.json (the planned manifest), password.txt. AES-256 WinZip AES ZIP_DEFLATED, root-relative POSIX entries exactly matching manifest; no plaintext file content in archive. Generate fresh cryptographic random password with >=128 bits entropy for each bundle. Decrypt every entry and compare size/SHA256 before reporting packaged; Unicode, spaces, overlapping inputs and empty files supported.",
+      "verification": "encrypted-roundtrip"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "Output directory mode0700 and all three files0600; password stored only in password.txt and memory, never stdout/stderr/exceptions. Success JSON schema_version1,status=packaged,bundle_dir,archive_path,manifest_path,password_file,file_count,total_bytes,archive_sha256; never returns password. No network, upload, email or input writes. WinZip AES leaves filenames visible: do not claim filename encryption.",
+      "verification": "secret-handling"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Reject output equal to or nested inside input root (OUTPUT_NOT_ALLOWED), existing directory/file/symlink output (OUTPUT_EXISTS), missing/invalid parent (IO_ERROR); do not overwrite. Stage in private sibling directory, clean partial artifacts on handled failure; final bundle only published after verified. All planner errors preserved. Re-read content during packaging and verify it matches initial manifest; mismatch INPUT_CHANGED, no final bundle. This is observed-change detection not an adversarial snapshot guarantee.",
+      "verification": "output-transaction"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "verify reads bundle manifest,password,archive without extracting or altering them. Success status=verified with file_count,total_bytes,archive_sha256. Wrong password, corrupted archive, changed manifest/hash, unexpected/missing/duplicate entries, unencrypted or nonAES256 entries, absolute/traversing archive names all fail exit2 code VERIFY_FAILED. Validate manifest schema1/planned and entry types/unique safe paths/count/sum. Verification failures must not disclose password or file contents.",
+      "verification": "verification"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "All valid operation failures emit JSON status=error,error.code,error.message exit2; IO_ERROR for output IO failures. Existing 18 controller checks remain passing, meaningful Worker tests cover new behavior; independently decrypt using 7-Zip CLI when available in controller, plus pyzipper. No new provider binding, state DB or custom cryptography.",
+      "verification": "regression-and-errors"
+    }
+  ],
+  "preferences": [
+    "Small understandable modules; accept equivalent correct implementation.",
+    "Streaming content preferred; avoid unnecessary complexity."
+  ],
+  "context": [
+    "Read AGENTS.md and docs/plans/implementation.md and docs/plans/FD-002.md.",
+    "Controller tests/contracts/evidence are immutable; only exact scope files may change.",
+    "Current Coding Plan authorized: at most initial + one repair submission, each600seconds; GLM5.3 low / max_tokens8192, no silent retries.",
+    "Use /Users/aquarist/IdeaProjects/agent-relay/.venv/bin/python for tests; pyzipper0.4.0 and pycryptodomex installed there. Do not install into system Python.",
+    "Optional archive extra keeps FD001 isolated install checks valid. Import archive lazily so plan works without dependency.",
+    "No external storage/mail/deployment. Secrets fixture must remain temporary."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 2,
+    "timeout_seconds": 600
+  }
+}
