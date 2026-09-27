@@ -1,0 +1,51 @@
+{
+  "AC-1": [
+    "test_ledger_acceptance.LedgerAcceptance.test_roundtrip_idempotent_status_and_secret_permissions"
+  ],
+  "AC-2": [
+    "test_ledger_acceptance.LedgerAcceptance.test_roundtrip_idempotent_status_and_secret_permissions",
+    "test_ledger_acceptance.LedgerAcceptance.test_conflicts_preserve_old_artifacts",
+    "test_ledger_acceptance.LedgerAcceptance.test_process_exit_recovery_and_concurrent_duplicate"
+  ],
+  "AC-3": [
+    "test_ledger_acceptance.LedgerAcceptance.test_conflicts_preserve_old_artifacts",
+    "test_ledger_acceptance.LedgerAcceptance.test_handled_failure_recovery_at_both_boundaries"
+  ],
+  "AC-4": [
+    "test_ledger_acceptance.LedgerAcceptance.test_handled_failure_recovery_at_both_boundaries",
+    "test_ledger_acceptance.LedgerAcceptance.test_process_exit_recovery_and_concurrent_duplicate"
+  ],
+  "AC-5": [
+    "test_ledger_acceptance.LedgerAcceptance.test_roundtrip_idempotent_status_and_secret_permissions",
+    "test_ledger_acceptance.LedgerAcceptance.test_private_paths_keys_and_network"
+  ],
+  "AC-6": [
+    "test_ledger_acceptance.LedgerAcceptance.test_private_paths_keys_and_network",
+    "test_archive_acceptance.ArchiveAcceptance.test_optional_dependency_and_public_api",
+    "test_archive_acceptance.ArchiveAcceptance.test_roundtrip_aes_and_secrets",
+    "test_archive_acceptance.ArchiveAcceptance.test_sevenzip_compatibility",
+    "test_archive_acceptance.ArchiveAcceptance.test_observed_change_cleanup_and_no_network",
+    "test_archive_acceptance.ArchiveAcceptance.test_output_rejections_and_planner_errors",
+    "test_archive_acceptance.ArchiveAcceptance.test_wrong_password_corruption_manifest_and_unsafe_entries",
+    "test_delivery_install.InstallAcceptance.test_ac1_offline_install_console_help",
+    "test_delivery_install.InstallAcceptance.test_ac1_installed_console_plans_outside_repository",
+    "test_delivery_install.InstallAcceptance.test_ac1_installed_metadata_and_import_location",
+    "test_plan_acceptance.PlanAcceptance.test_ac2_manifest_exact_content_and_overlap",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_missing",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_outside_and_prefix_collision",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_symlinks",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_symlink_parent",
+    "test_plan_acceptance.PlanAcceptance.test_ac3_special_and_empty",
+    "test_plan_acceptance.PlanAcceptance.test_ac4_sensitive_names_and_directories",
+    "test_plan_acceptance.PlanAcceptance.test_ac4_invalid_roots",
+    "test_plan_acceptance.PlanAcceptance.test_ac5_no_input_modification",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac5_no_network_operations",
+    "test_plan_acceptance.PlanAcceptance.test_ac6_io_error",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_size_change_during_read",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_detects_same_size_mtime_change_during_read",
+    "test_delivery_runtime.RuntimeAcceptance.test_ac6_unchanged_input_succeeds",
+    "test_archive_error_acceptance.ArchiveErrorAcceptance.test_invalid_utf8_files_return_json",
+    "test_archive_error_acceptance.ArchiveErrorAcceptance.test_decompression_error_is_safe",
+    "test_archive_error_acceptance.ArchiveErrorAcceptance.test_worker_cli_field_regression"
+  ]
+}

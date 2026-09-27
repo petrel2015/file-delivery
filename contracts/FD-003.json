@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-003",
+  "revision": 1,
+  "objective": "Implement a local SQLite task ledger, bounded locking, idempotent AES bundle recovery and verified local mock storage.",
+  "scope": [
+    "src/file_delivery/ledger.py",
+    "src/file_delivery/cli.py",
+    "src/file_delivery/errors.py",
+    "tests/test_ledger.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Add deliver-local PATH... --root ROOT --state-dir DIR --store-dir DIR --key KEY --json and status --state-dir DIR --key KEY --json; export ledger.deliver_local(paths,root,state_dir,store_dir,key,checkpoint=None) and ledger.status(state_dir,key). KEY accepts only [A-Za-z0-9_-]{1,64}; invalid yields INVALID_KEY. Keep plan/pack/verify and all prior trusted checks passing.",
+      "verification": "stable-cli-and-api"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "Use SQLite ledger.sqlite3 in private state directory; stable task_id per unique key. Fingerprint normalized absolute root, requested content manifest and absolute store path, so same key/same deduplicated content and store reuses existing task and password/bundle, no extra task, no second encryption; overlapping/equivalent inputs normalize to same fingerprint. Changed input content or store with same key returns IDEMPOTENCY_CONFLICT, preserving original task/bundle/object. status returns persisted task without needing source access; unknown key TASK_NOT_FOUND.",
+      "verification": "durable-state-and-idempotency"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "Re-use FD002 archive.pack/verify. Bundle at state_dir/bundles/<task_id>, copied archive at store_dir/<task_id>.zip with identical SHA256. Copy via private temp then publish and verify hash; existing matching object can be adopted during recovery; existing mismatching object returns LOCAL_STORE_CONFLICT and is never overwritten. Completed duplicate requests must read-back existing local object; missing object may be restored from intact bundle, corrupted object must fail. Never report stored-local based only on DB state.",
+      "verification": "local-store-integrity"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Persist pending,packaged,stored-local states with short committed SQLite transitions and structured last_error on ordinary handled errors; never mark stored-local before verified copy. Keep durable bundle/password for retries. Optional API checkpoint callback receives after_pack and after_store immediately after completed bundle and copy respectively, before corresponding DB state commit; callback OSError must produce IO_ERROR but be recoverable. Process crash at either checkpoint must also recover on next same request without generating a new password; verify surviving bundle/object. Serialize same-key operations across processes using a local lock with bounded acquisition <=5 seconds or return BUSY. No lock left preventing retries after process exit.",
+      "verification": "recovery-and-locking"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "State/store directories must be real paths without symlink components and outside input root, and disjoint (neither inside other); unsafe =>STATE_INVALID. New directories0700; existing owner directories stricter than0700 allowed but reject any group/other access. DB, lock, object files0600; bundle perFD002. Password only in protected bundle password.txt; never stored in SQLite, output, status, last_error or logs. JSON success schema_version1,status=stored-local,task_id,key,archive_sha256,artifact_path,password_file,file_count,total_bytes,reused (bool); status may report pending/packaged with same task/key and last_error but no secret. No external network, upload, SMTP, public URL or provider SDK.",
+      "verification": "private-paths-and-secrets"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "Return valid JSON status=error,error.code,error.message and exit2 on business failures; IO_ERROR for local filesystem IO. Failure messages use safe diagnostics, never callback message contents or file contents. Meaningful Worker tests plus controller roundtrip, same-key concurrency, changed-input conflict, fault injection at both checkpoints, actual process exit/restart recovery, password persistence, missing/corrupt local object, private path/permissions and no-network checks. This is trusted local single-host operation, no adversarial filesystem snapshot or distributed locks.",
+      "verification": "deterministic-failures-and-regression"
+    }
+  ],
+  "preferences": [
+    "Keep core reusable by future Hermes Skill and provider adapters.",
+    "Equivalent correct schemas/locking mechanisms accepted; do not overdesign provider abstractions."
+  ],
+  "context": [
+    "Read AGENTS.md docs/plans/implementation.md and docs/plans/FD-003.md.",
+    "No modifications to contracts, controller tests, prior planner/archive implementation or evidence.",
+    "The state directory is the local credential-recovery boundary; user can read password.txt. No password on CLI command line or JSON.",
+    "Each new work_id at most 2 Worker submissions,600 seconds each, GLM5.3 low/max_tokens8192; no hidden retries.",
+    "Use /Users/aquarist/IdeaProjects/agent-relay/.venv/bin/python for tests; archive dependencies already installed.",
+    "External storage, email and deployment prohibited for this slice."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 2,
+    "timeout_seconds": 600
+  }
+}
