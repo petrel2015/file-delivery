@@ -1,4 +1,4 @@
-"""Command line entry: file-delivery plan PATH [PATH ...] --root ROOT [--json]."""
+"""Command line entry: file-delivery plan/pack/verify subcommands."""
 
 from __future__ import annotations
 
@@ -22,6 +22,23 @@ def build_parser() -> argparse.ArgumentParser:
     plan_parser.add_argument("paths", nargs="+", metavar="PATH", help="input files or directories")
     plan_parser.add_argument("--root", required=True, metavar="ROOT", help="root directory of all inputs")
     plan_parser.add_argument("--json", action="store_true", help="emit the manifest as JSON (default)")
+
+    pack_parser = subparsers.add_parser(
+        "pack",
+        help="pack inputs into a local AES-256 ZIP bundle",
+    )
+    pack_parser.add_argument("paths", nargs="+", metavar="PATH", help="input files or directories")
+    pack_parser.add_argument("--root", required=True, metavar="ROOT", help="root directory of all inputs")
+    pack_parser.add_argument("--output-dir", required=True, metavar="DIR", help="new bundle output directory")
+    pack_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    verify_parser = subparsers.add_parser(
+        "verify",
+        help="verify an existing bundle without extracting it",
+    )
+    verify_parser.add_argument("bundle_dir", metavar="DIR", help="bundle directory to verify")
+    verify_parser.add_argument("--password-file", metavar="FILE", help="password file (default: DIR/password.txt)")
+    verify_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
     return parser
 
 
@@ -29,7 +46,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
-        manifest = planning.plan(args.paths, args.root)
+        if args.command == "plan":
+            result = planning.plan(args.paths, args.root)
+        elif args.command == "pack":
+            from file_delivery import archive
+            result = archive.pack(args.paths, args.root, args.output_dir)
+        else:
+            from file_delivery import archive
+            result = archive.verify(args.bundle_dir, args.password_file)
     except errors.DeliveryError as exc:
         print(json.dumps({"schema_version": planning.SCHEMA_VERSION,
                           "status": "error",
@@ -41,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
                           "error": {"code": errors.IO_ERROR,
                                     "message": f"io failure: {exc.strerror or exc}"}}))
         return 2
-    print(json.dumps(manifest))
+    print(json.dumps(result, ensure_ascii=False))
     return 0
 
 

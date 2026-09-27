@@ -9,6 +9,9 @@ description = "Offline read-only delivery manifest planner"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+archive = ["pyzipper==0.4.0"]
+
 [project.scripts]
 file-delivery = "file_delivery.cli:main"
 
