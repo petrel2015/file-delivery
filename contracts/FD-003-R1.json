@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-003-R1",
+  "revision": 1,
+  "objective": "Explicit additional_repair of FD003 pending-bundle deletion regression only; not a new feature or history reset.",
+  "scope": [
+    "src/file_delivery/ledger.py",
+    "tests/test_ledger.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Existing published bundle must NEVER be deleted or re-encrypted because archive.verify fails, including pending task without recorded_sha. Propagate safe error, preserve exact archive/manifest/password bytes and task identity. Later successful verification reuses existing bundle/password. Only absent bundle with no recorded_sha can create first package. All original FD003 required behavior and all frozen tests remain passing.",
+      "verification": "pending-bundle-failure-and-success-controls"
+    }
+  ],
+  "preferences": [
+    "Minimal change: remove _discard_partial_bundle recovery branch; no refactor."
+  ],
+  "context": [
+    "Explicit coordination amendment: one extra120second ZCode GLM5.3 low8192 submission, no auto repair; FD003 total submission limit3, old2 retained.",
+    "Parent run file-delivery-fd003; source candidate4c7435a256eef60c39017f63b5e79dff17d32a9a. This is additional_repair.",
+    "Repro: deliver_local checkpoint after_pack raises OSError -> durable bundle+pending row; next retry patch archive.verify to raise VERIFY_FAILED once. Current _ensure_bundle deletes bundle and changes password, returns stored-local. Required immediate VERIFY_FAILED with original bytes unchanged; next normal retry retains bytes and completes.",
+    "Only ledger.py and tests/test_ledger.py can change. No contract/controller test edits. Remove destructive helper if unused; existing invalid bundle should fail intact.",
+    "Use PYTHONDONTWRITEBYTECODE=1 /Users/aquarist/IdeaProjects/agent-relay/.venv/bin/python -B for all tests. No external service actions."
+  ],
+  "budget": {
+    "max_repairs": 0,
+    "max_review_rounds": 1,
+    "timeout_seconds": 120
+  }
+}
