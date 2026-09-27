@@ -53,13 +53,13 @@ python3 -m venv .venv
 - [FD-003验收、安装烟测及显式追加修复](evidence/fd003-accepted.json)
 - [项目累计调用/用量/审查](evidence/project-costs.json)
 
-累计10次真实Worker提交、5次修复（3次普通修复、2次显式追加）、8轮Codex审查。共观察1,979,337 tokens；FD-001历史两次超时使总用量仍不完整，货币成本和Codex用量均未知/null，不能据运行时间或low配置宣称降本。
+累计12次真实Worker提交、6次修复（4次普通修复、2次显式追加）、10轮Codex审查。共观察2,632,492 tokens；FD-001历史两次超时使总用量仍不完整，货币成本和Codex用量均未知/null，不能据运行时间或low配置宣称降本。
 
 原始失败未覆盖：[FD-001首次](evidence/fd001-first-invocation.json)、[继续超时](evidence/fd001-continuation-outcome.json)、[FD-002审查失败](evidence/fd002-review-blocked.json)、[FD-003审查失败](evidence/fd003-review-blocked.json)。两个修复候选曾因忽略的Python缓存被控制器范围检查拒绝；保留原状态、精确缓存哈希和人工核对记录后验证，没有为缓存问题追加模型调用。额外业务修复各有明确的关联合同、独立上限和成本，不作为新功能清零。
 
 ## 后续接入准备
 
-FD-004 已细分为适配器、账本/CLI 和真实联调三步，详见 [FD-004 接入合同计划](plans/FD-004.md)。FD-004A 第一次真实 Worker 调用已结束：41 项可信检查通过，但独立审查发现下载流异常脱敏和输入校验缺陷；候选尚未接受或集成。详见 [首次候选记录](evidence/fd004a-first-candidate.json)。仓库已公开，未登录访问确认成功。
+FD-004 已细分为适配器、账本/CLI 和真实联调三步，详见 [FD-004 接入合同计划](plans/FD-004.md)。FD-004A 已执行初次调用及一次普通修复：修复候选通过41项可信检查、93项业务单测和6项原审查回归，但第二轮仍复现下载域名控制字符未被拒绝，候选尚未接受或集成。已请求一次定点追加修复，尚未获批或调用。见 [完整失败与恢复证据](evidence/fd004a-review-blocked.json)。仓库已公开，未登录访问确认成功。
 
 ## 未实施
 
