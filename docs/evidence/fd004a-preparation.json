@@ -1,0 +1,29 @@
+{
+  "work_id": "FD-004A",
+  "status": "prepared_not_dispatched",
+  "framework_sha": "3cd17c09f77f5d597d041db4b005683024fc6228",
+  "worker_submissions": 0,
+  "codex_candidate_reviews": 0,
+  "cost": null,
+  "profile": {
+    "reasoning": "low",
+    "max_output_tokens": null
+  },
+  "loopback_status": "verified_loopback_request",
+  "upstream_calls_in_probe": 0,
+  "preflight": {
+    "mapped_tests": 7,
+    "mapping_complete": true,
+    "fixture_verified": true,
+    "initial_fixture_defect": "Raw BytesIO closure is not requests.Response.close semantics after buffered consumption; replaced with explicit close tracking before Worker dispatch.",
+    "baseline_result": "7 tests fail because qiniu_store is not yet implemented; expected red baseline.",
+    "live_provider_calls": 0
+  },
+  "remaining": [
+    "FD004A candidate implementation and review",
+    "FD004B persistent CLI integration",
+    "real authorized Qiniu acceptance",
+    "FD005 SMTP",
+    "FD006 Hermes Skill and MCP"
+  ]
+}

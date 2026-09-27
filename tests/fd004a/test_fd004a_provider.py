@@ -17,7 +17,14 @@ CONTENT = b'encrypted-archive-test-fixture'
 
 def response(code=200, payload=None, body=None):
     import requests
-    r = requests.Response()
+    class TrackedResponse(requests.Response):
+        closed = False
+
+        def close(self):
+            self.closed = True
+            super().close()
+
+    r = TrackedResponse()
     r.status_code = code
     data = body if body is not None else json.dumps(payload or {}).encode()
     r._content = data
@@ -197,6 +204,6 @@ class ProviderTests(unittest.TestCase):
         self.failure('REMOTE_ERROR',lambda:self.store(s).stat('a.zip'))
         s=Session([response(payload={'hash':'x','fsize':1})])
         self.store(s).stat('a.zip')
-        self.assertTrue(s.responses[0].raw.closed, 'response must be closed')
+        self.assertTrue(s.responses[0].closed, 'response must be closed')
         auth=s.calls[0][2].get('headers',{}).get('Authorization') or s.calls[0][2].get('auth')
         self.assertTrue(auth,'Management request must be authenticated')
