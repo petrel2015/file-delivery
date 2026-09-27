@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-002-R1",
+  "revision": 1,
+  "objective": "Explicit additional_repair of FD-002 candidate86447f86ccd12a610442d275767d5d05408ff8ba: handle decompression/encoding failures and correct Worker CLI assertion. Not a new feature or reset of history.",
+  "scope": [
+    "src/file_delivery/archive.py",
+    "tests/test_archive.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Preserve all original FD002 criteria and passing behavior. Catch corrupt-data zlib.error and invalidUTF8 UnicodeError in verify as safe DeliveryError VERIFY_FAILED, CLI JSON exit2 no traceback or secret contents. Correct Worker CLI test to require password_file, not password. Full trusted and worker test suites pass.",
+      "verification": "three-frozen-reproductions-and-regressions"
+    }
+  ],
+  "preferences": [
+    "Minimal targeted changes only; no refactor or new behavior."
+  ],
+  "context": [
+    "Explicit coordination budget amendment: FD002 total submissions2->3; this run is additional_repair, max1call180seconds,no automatic repair, low8192.",
+    "Parent run /Users/aquarist/IdeaProjects/.agent-relay-runs/file-delivery-fd002; prior controller scope violation and all costs remain unchanged.",
+    "Parent accepted-for-repair candidate86447f86ccd12a610442d275767d5d05408ff8ba; original contracts/FD-002.json criteria unchanged.",
+    "Use /Users/aquarist/IdeaProjects/agent-relay/.venv/bin/python -B and PYTHONDONTWRITEBYTECODE=1 for tests to avoid scope cache artifacts.",
+    "Do not edit controller tests/contracts/planning/CLI business file or unrelated source."
+  ],
+  "budget": {
+    "max_repairs": 0,
+    "max_review_rounds": 1,
+    "timeout_seconds": 180
+  }
+}
