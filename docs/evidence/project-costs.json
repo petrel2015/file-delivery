@@ -1,0 +1,28 @@
+{
+  "work_items": [
+    {
+      "work_id": "FD-001",
+      "observed_provider_tokens": 405022,
+      "usage_complete": false,
+      "incomplete_attempts": [
+        1,
+        2
+      ],
+      "money_cost": null,
+      "codex_review_count": 2
+    },
+    {
+      "work_id": "FD-002",
+      "observed_provider_tokens": 491682,
+      "usage_complete": true,
+      "incomplete_attempts": [],
+      "money_cost": null,
+      "codex_review_count": 2
+    }
+  ],
+  "observed_provider_tokens": 896704,
+  "usage_complete": false,
+  "money_cost": null,
+  "codex_usage": null,
+  "scope": "All real project Worker attempts to this point, including failed and interrupted calls."
+}

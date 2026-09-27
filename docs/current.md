@@ -43,3 +43,11 @@ python3 -m venv .venv
 按[实施计划](plans/implementation.md)，继续 FD-002 本地 AES ZIP 打包/解密验证，再做 FD-003 SQLite 账本、幂等恢复与模拟存储。每个新合同先冻结范围和可信验收，各最多两次 Worker 提交、每次 600 秒；成本按项目累计，保留 FD-001 历史失败。
 
 七牛真实上传、SMTP 发送和部署尚未执行；FD-004/005 服务配置与授权及 FD-006 完整 Hermes 交付另行完成。
+
+## FD-002 当前验收阻塞
+
+两个真实Worker调用已结束，观察用量491,682 tokens，费用未知。固定候选 `86447f86ccd12a610442d275767d5d05408ff8ba` 的24项可信检查通过，含独立7-Zip解密，但64项全量测试仍1失败1错误；独立审查发现损坏压缩数据及非UTF8清单的异常未转为JSON错误，另有Worker测试字段断言错误。未集成、未发布FD-002。
+
+修复后控制器因忽略的Python缓存误判越界；原始worker_scope_violation保留，另存缓存哈希与人工范围核对，不改写成自动通过。两次调用和两轮审查额度已用尽，不自动增加调用。FD-003草稿已准备但依赖FD-002验收，尚未执行。
+
+[详细失败证据](evidence/fd002-review-blocked.json)、[项目累计成本](evidence/project-costs.json)。累计已观察896,704 tokens，FD-001历史中断仍使总用量不完整；总费用及Codex用量未知。
