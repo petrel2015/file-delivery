@@ -139,5 +139,108 @@ class PackVerifyCliTests(unittest.TestCase):
         self.assertNotIn("Traceback", r.stderr)
 
 
+@unittest.skipUnless(_pyzipper_available(), "pyzipper not installed")
+class DeliverLocalCliTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name).resolve()
+        self.root = self.base / "root"
+        self.root.mkdir()
+        (self.root / "a.txt").write_bytes(b"payload")
+        self.state = self.base / "state"
+        self.store = self.base / "store"
+
+    def run_cli(self, *args):
+        env = {"PYTHONPATH": str(PROJECT / "src"), "PYTHONDONTWRITEBYTECODE": "1",
+               "PATH": "/usr/bin:/bin"}
+        return subprocess.run([sys.executable, "-B", "-m", "file_delivery", *args],
+                              cwd=PROJECT, env=env, capture_output=True, text=True, timeout=60)
+
+    def deliver(self, key="k1"):
+        return self.run_cli("deliver-local", str(self.root), "--root", str(self.root),
+                            "--state-dir", str(self.state), "--store-dir", str(self.store),
+                            "--key", key, "--json")
+
+    def test_deliver_local_then_status(self):
+        r = self.deliver()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["schema_version"], 1)
+        self.assertEqual(value["status"], "stored-local")
+        self.assertEqual(sorted(value.keys()), sorted([
+            "schema_version", "status", "task_id", "key", "archive_sha256",
+            "artifact_path", "password_file", "file_count", "total_bytes", "reused"]))
+        self.assertFalse(value["reused"])
+        password = Path(value["password_file"]).read_text().strip()
+        self.assertNotIn(password, r.stdout)
+        self.assertNotIn(password, r.stderr)
+
+        r = self.run_cli("status", "--state-dir", str(self.state), "--key", "k1", "--json")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        st = json.loads(r.stdout)
+        self.assertEqual(st["status"], "stored-local")
+        self.assertEqual(st["task_id"], value["task_id"])
+
+    def test_deliver_local_reuse(self):
+        first = json.loads(self.deliver().stdout)
+        second = json.loads(self.deliver().stdout)
+        self.assertTrue(second["reused"])
+        self.assertEqual(second["task_id"], first["task_id"])
+
+    def test_deliver_local_invalid_key(self):
+        r = self.deliver(key="bad key!")
+        self.assertEqual(r.returncode, 2)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "INVALID_KEY")
+
+    def test_status_unknown_key_exit2(self):
+        r = self.run_cli("status", "--state-dir", str(self.state), "--key", "nope", "--json")
+        self.assertEqual(r.returncode, 2)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "TASK_NOT_FOUND")
+
+    def test_deliver_local_state_inside_root_rejected(self):
+        r = self.run_cli("deliver-local", str(self.root), "--root", str(self.root),
+                         "--state-dir", str(self.root / "state"),
+                         "--store-dir", str(self.store), "--key", "k1", "--json")
+        self.assertEqual(r.returncode, 2)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "STATE_INVALID")
+
+    def test_deliver_local_help(self):
+        r = self.run_cli("deliver-local", "--help")
+        self.assertEqual(r.returncode, 0)
+        r = self.run_cli("status", "--help")
+        self.assertEqual(r.returncode, 0)
+
+    def test_corrupt_db_no_traceback(self):
+        self.deliver()
+        (self.state / "ledger.sqlite3").write_bytes(b"bad sqlite")
+        r = self.deliver()
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertIn(value["error"]["code"], ("STATE_INVALID", "IO_ERROR"))
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertEqual(r.stdout.count("\n"), 1)
+        r = self.run_cli("status", "--state-dir", str(self.state),
+                         "--key", "k1", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertNotIn("Traceback", r.stderr)
+
+    def test_dotdot_state_inside_root_rejected(self):
+        outside = self.base / "outside"
+        outside.mkdir()
+        r = self.run_cli("deliver-local", str(self.root), "--root", str(self.root),
+                         "--state-dir", str(outside / ".." / "root" / "state"),
+                         "--store-dir", str(self.store), "--key", "k1", "--json")
+        self.assertEqual(r.returncode, 2)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "STATE_INVALID")
+
+
 if __name__ == "__main__":
     unittest.main()

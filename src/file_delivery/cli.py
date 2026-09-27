@@ -39,6 +39,25 @@ def build_parser() -> argparse.ArgumentParser:
     verify_parser.add_argument("bundle_dir", metavar="DIR", help="bundle directory to verify")
     verify_parser.add_argument("--password-file", metavar="FILE", help="password file (default: DIR/password.txt)")
     verify_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    deliver_parser = subparsers.add_parser(
+        "deliver-local",
+        help="idempotently package inputs and store a verified local object",
+    )
+    deliver_parser.add_argument("paths", nargs="+", metavar="PATH", help="input files or directories")
+    deliver_parser.add_argument("--root", required=True, metavar="ROOT", help="root directory of all inputs")
+    deliver_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private ledger state directory")
+    deliver_parser.add_argument("--store-dir", required=True, metavar="DIR", help="local object store directory")
+    deliver_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key ([A-Za-z0-9_-]{1,64})")
+    deliver_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    status_parser = subparsers.add_parser(
+        "status",
+        help="show the persisted ledger task for a key",
+    )
+    status_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private ledger state directory")
+    status_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key")
+    status_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
     return parser
 
 
@@ -51,9 +70,16 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "pack":
             from file_delivery import archive
             result = archive.pack(args.paths, args.root, args.output_dir)
-        else:
+        elif args.command == "verify":
             from file_delivery import archive
             result = archive.verify(args.bundle_dir, args.password_file)
+        elif args.command == "deliver-local":
+            from file_delivery import ledger
+            result = ledger.deliver_local(
+                args.paths, args.root, args.state_dir, args.store_dir, args.key)
+        else:
+            from file_delivery import ledger
+            result = ledger.status(args.state_dir, args.key)
     except errors.DeliveryError as exc:
         print(json.dumps({"schema_version": planning.SCHEMA_VERSION,
                           "status": "error",
