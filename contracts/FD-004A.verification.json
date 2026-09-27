@@ -1,0 +1,23 @@
+{
+  "AC-1": [
+    "test_fd004a_provider.ProviderTests.test_config"
+  ],
+  "AC-2": [
+    "test_fd004a_provider.ProviderTests.test_private"
+  ],
+  "AC-3": [
+    "test_fd004a_provider.ProviderTests.test_upload"
+  ],
+  "AC-4": [
+    "test_fd004a_provider.ProviderTests.test_stat"
+  ],
+  "AC-5": [
+    "test_fd004a_provider.ProviderTests.test_link"
+  ],
+  "AC-6": [
+    "test_fd004a_provider.ProviderTests.test_delete"
+  ],
+  "AC-7": [
+    "test_fd004a_provider.ProviderTests.test_transport"
+  ]
+}

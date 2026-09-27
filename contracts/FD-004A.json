@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-004A",
+  "revision": 1,
+  "objective": "Implement the production Qiniu private-object provider boundary, first step of FD-004; offline acceptance is not real service acceptance or completion of FD-004.",
+  "scope": [
+    "src/file_delivery/qiniu_store.py",
+    "src/file_delivery/errors.py",
+    "pyproject.toml",
+    "tests/test_qiniu_store.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Implement file_delivery.qiniu_store.QiniuStore.from_file(path, *, session=None). JSON keys: access_key,secret_key,bucket,region,download_domain, optional timeout_seconds(default30,integer1..120). Required nonempty strings; bucket DNS-safe; region supported official Qiniu region IDs (at least z0,z1,z2,na0,as0,cn-east-2); download_domain HTTPS origin only, no credentials/query/fragment/path except trailing slash, no localhost/IP literal. Config is owner-only regular file(mode0600 or stricter), no symlink components; reject malformed/unsafe config with CONFIG_INVALID before network. Constructor performs no network. Do not expose credentials in repr, exception or logs. Optional qiniu extra pins qiniu==7.18.0; base dependencies remain empty and imports lazy.",
+      "verification": "config"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "ensure_private() queries real Qiniu bucketInfo API and requires integer private=1; missing, boolean, public or malformed privacy =>BUCKET_NOT_PRIVATE. upload always calls ensure_private before sending bytes. No changing bucket permissions/creating buckets. Use SDK Auth signing and real HTTPS endpoints derived from region (uc.qiniuapi.com, up-REGION.qiniup.com, rs-REGION.qiniuapi.com); never send credentials to configurable arbitrary management endpoints.",
+      "verification": "private"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "upload(path,key,retention_days=30) uploads exactly one local regular non-symlink file via form upload using insertOnly=1, scope bucket:key, deleteAfterDays positive integer1..3650, standard storage, no callbacks. Validate object key as relative POSIX segments without dot/dotdot/empty/backslash/control chars, at most1024 UTF8 bytes. Validate arguments before network. Success checks exact returned key and Qiniu etag(local file), returns status=uploaded,key,etag,size. Never upload a password or manifest implicitly, never overwrite remote object. HTTP614 =>REMOTE_CONFLICT. Form upload is sufficient here; resumable large-file support remains future performance work. Invalid key =>INVALID_OBJECT_KEY, invalid retention=>CONFIG_INVALID, returned key/etag mismatch=>REMOTE_INTEGRITY.",
+      "verification": "upload"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "stat(key) performs authenticated stat and returns key,etag,size for valid hash/fsize; HTTP612 alone yields None. HTTP401/403=>REMOTE_AUTH; other definite HTTP4xx=>REMOTE_ERROR; malformed response=>REMOTE_ERROR. No assumption that arbitrary errors mean absent. All returned messages sanitized; no response bodies, tokens or URLs in errors.",
+      "verification": "stat"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "signed_url(key,ttl_seconds=604800) returns url and integer expires_at; ttl integer1..604800, no booleans. Sign correctly URL-encoded HTTPS object path with e deadline and token using Qiniu Auth, no network. verify_download(key,expected_sha256,expected_size) first verifies anonymous request receives401/403 (2xx=>BUCKET_NOT_PRIVATE;404/redirect/other=>REMOTE_ERROR), then streams signed GET and computes exact SHA256 and size; mismatch=>REMOTE_INTEGRITY. Return status=link-verified,sha256,size without URL/token. Stop reading when declared size exceeded. Never write downloaded plaintext/archive to disk. Never claim expiry merely from generation. Invalid ttl=>CONFIG_INVALID; validate expected SHA256 as64 lowercase hex and expected_size as nonnegative integer, invalid=>CONFIG_INVALID before any request.",
+      "verification": "link"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "delete(key) makes one authenticated delete request, accepts200 or612, then stat must confirm absent; otherwise REMOTE_DELETE_UNCONFIRMED. Returns status=object-deleted,key only after confirmation. Remote deletion does not guarantee CDN cache purge or withdrawal of downloaded copies; no such claim. Does not delete any local bundle/password. Retention policy is scheduling, not immediate deletion or exact wall-clock deletion guarantee.",
+      "verification": "delete"
+    },
+    {
+      "id": "AC-7",
+      "behavior": "Use requests.Session.request(method,url,**kwargs) as injectable transport boundary. Production session disables implicit HTTP retries and trust_env; every request HTTPS, explicit finite timeout, allow_redirects=False; download stream=True. Close all response bodies including failures. At most one attempt per operation/request; no automatic retries. Timeout/connection failure or HTTP5xx=>REMOTE_UNKNOWN (outcome may already have happened), no exceptions containing provider body, secret or signedURL. API dependency absence=>DEPENDENCY_MISSING; local file IO=>IO_ERROR. API uses existing DeliveryError. Safe exceptions for unexpected malformed data. Meaningful Worker unit tests; prior frozen checks pass. New provider feature must not alter planner/archive/ledger behavior.",
+      "verification": "transport"
+    }
+  ],
+  "preferences": [
+    "Keep provider interface reusable by the next persistent remote delivery task.",
+    "No style-only repairs; equivalent correct implementations accepted."
+  ],
+  "context": [
+    "Read AGENTS.md docs/plans/implementation.md docs/plans/FD-004.md.",
+    "Worker implements business code only; never edit contracts/controller checks/evidence or other modules.",
+    "Only synthetic configuration and injected transport in tests; no live Qiniu or SMTP operations authorized.",
+    "Initial submission plus at most one ordinary repair. Explicit delivery policy records guards and current Coding Plan authorization. GLM-5.3 low with provider default output cap, subject to fresh loopback proof.",
+    "Use /Users/aquarist/IdeaProjects/agent-relay/.venv/bin/python; qiniu7.18.0 and archive extras are installed there. PYTHONDONTWRITEBYTECODE=1 prevents ignored-cache scope artifacts.",
+    "Inject session with requests.Session.request-compatible fake; fake returns requests.Response objects. Supporting methods may not use session.get/post directly. Session is trusted test dependency, not production CLI option."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 2,
+    "timeout_seconds": 1800
+  }
+}
