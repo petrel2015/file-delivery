@@ -1,0 +1,18 @@
+{
+  "AC-1": [
+    "test_fd004a_provider.ProviderTests.test_config",
+    "test_fd004a_provider.ProviderTests.test_private",
+    "test_fd004a_provider.ProviderTests.test_upload",
+    "test_fd004a_provider.ProviderTests.test_stat",
+    "test_fd004a_provider.ProviderTests.test_link",
+    "test_fd004a_provider.ProviderTests.test_delete",
+    "test_fd004a_provider.ProviderTests.test_transport",
+    "test_fd004a_regressions.Regressions.test_stream_failure",
+    "test_fd004a_regressions.Regressions.test_config_domain",
+    "test_fd004a_regressions.Regressions.test_config_bucket_newline",
+    "test_fd004a_regressions.Regressions.test_config_timeout_null",
+    "test_fd004a_regressions.Regressions.test_surrogate_key",
+    "test_fd004a_regressions.Regressions.test_sha_trailing_newline",
+    "test_fd004a_regressions.Regressions.test_domain_controls_rejected_before_network"
+  ]
+}

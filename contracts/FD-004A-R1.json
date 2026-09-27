@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-004A-R1",
+  "revision": 1,
+  "objective": "Proposed additional repair of FD004A domain validation at candidate335b93b29e2918f7da32c5d4f642bb56a1a2d4f0; not a new feature, authorization, acceptance, or reset of parent history.",
+  "scope": [
+    "src/file_delivery/qiniu_store.py",
+    "tests/test_qiniu_store.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Reject raw download_domain values containing ASCII control characters (U+0000 through U+001F or U+007F) with safe DeliveryError CONFIG_INVALID in from_file before network. In particular HTTPS origin plus newline/carriage-return, and a tab embedded in hostname, must not be normalized into an accepted config or retained in a generated URL. Preserve valid HTTPS origins and all required FD-004A contract behavior, previous fixed tests and original six review regressions. Maintain meaningful Worker unit tests without weakening validation.",
+      "verification": "raw-domain-controls-and-preserved-provider-regressions"
+    }
+  ],
+  "preferences": [
+    "Smallest correct validation change; no style-only refactor or unrelated behavior change."
+  ],
+  "context": [
+    "Read AGENTS.md contracts/FD-004A.json docs/plans/FD-004A-R1.md. Parent business task FD-004A and parent run file-delivery-fd004a retain2 submissions,1 ordinary repair,2 Codex review rounds and653155 observed tokens before this proposed invocation.",
+    "This additional_repair requires separate explicit user approval, currently requested but not received. Do not execute merely because this contract exists. Record actual authorization in private delivery policy only after approval.",
+    "Repair baseline is335b93b29e2918f7da32c5d4f642bb56a1a2d4f0, not public main which has no accepted Qiniu implementation. Controller must preserve original run and bind a prepared repair checkout; do not overwrite original state or claim original terminal scope failure disappeared.",
+    "Use existing ZCode Coding Plan and GLM-5.3 low with provider default output setting after current loopback proof. Proposed extra submission ceiling1, no ordinary repair, independent review1. All new usage attributed as additional_repair to FD-004A.",
+    "Only modify the two allowed paths. Controller contracts, tests/fd004a and tests/fd004a_review, evidence and publishing are outside Worker scope. No real provider calls, credentials, uploads, deletes or SMTP.",
+    "Use framework .venv Python with -B and PYTHONDONTWRITEBYTECODE=1 for offline tests. No change to previous stream-error sanitization, strict bucket/timeout/SHA/key validation, response closure or task/provider APIs."
+  ],
+  "budget": {
+    "max_repairs": 0,
+    "max_review_rounds": 1,
+    "timeout_seconds": 600
+  }
+}
