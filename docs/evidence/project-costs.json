@@ -13,14 +13,14 @@
     },
     {
       "work_id": "FD-002",
-      "observed_provider_tokens": 491682,
+      "observed_provider_tokens": 571615,
       "usage_complete": true,
       "incomplete_attempts": [],
       "money_cost": null,
-      "codex_review_count": 2
+      "codex_review_count": 3
     }
   ],
-  "observed_provider_tokens": 896704,
+  "observed_provider_tokens": 976637,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,

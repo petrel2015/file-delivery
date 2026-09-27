@@ -51,3 +51,18 @@ python3 -m venv .venv
 修复后控制器因忽略的Python缓存误判越界；原始worker_scope_violation保留，另存缓存哈希与人工范围核对，不改写成自动通过。两次调用和两轮审查额度已用尽，不自动增加调用。FD-003草稿已准备但依赖FD-002验收，尚未执行。
 
 [详细失败证据](evidence/fd002-review-blocked.json)、[项目累计成本](evidence/project-costs.json)。累计已观察896,704 tokens，FD-001历史中断仍使总用量不完整；总费用及Codex用量未知。
+
+## FD-002 已接受发布（后续裁决）
+
+上述原失败保留。显式追加一次180秒补充修复后，候选 `1ee52bdfeed4cc68c6cfa27c736f28414a5be907` 通过27项可信检查及40项业务单测；集成主分支67项测试零失败/错误/跳过。业务提交 `b8452b3`。原2次加补充1次，共3次Worker提交、3轮Codex审查；本功能观察571,615 tokens，项目累计976,637，费用未知。
+
+新增可用命令（先安装 `pip install '.[archive]'`）：
+
+```sh
+.venv/bin/file-delivery pack /绝对路径/输入目录 --root /绝对路径/输入目录 --output-dir /绝对路径/新加密包目录 --json
+.venv/bin/file-delivery verify /绝对路径/新加密包目录 --json
+```
+
+密码位于输出目录password.txt，目录0700，三个文件0600；JSON只返回位置。AES256保护内容，文件名仍可见；同用户/管理员仍可读取密码文件，未使用系统钥匙串。单个大文件当前读入内存，尚未做流式优化或大规模性能验证。
+
+[最终验收和追加修复关联](evidence/fd002-accepted.json)。FD-003现在可以在已验证归档模块上继续。
