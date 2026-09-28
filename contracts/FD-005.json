@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-005",
+  "revision": 1,
+  "objective": "Send one existing verified file-delivery handoff to one mailbox through TLS SMTP with contact aliases, durable no-resend-on-unknown semantics and safe CLI. Offline qualification is not live channel receipt.",
+  "scope": [
+    "src/file_delivery/notification.py",
+    "src/file_delivery/contacts.py",
+    "src/file_delivery/remote.py",
+    "src/file_delivery/cli.py",
+    "src/file_delivery/errors.py",
+    "tests/test_notification.py",
+    "tests/test_contacts.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Implement notification.send(state_dir,delivery_key,smtp_config,recipient,notification_key,*,contacts_path=None,transport=None,checkpoint=None), notification.status(state_dir,notification_key), contacts.resolve(recipient,contacts_path=None). CLI send-email --state-dir DIR --delivery-key KEY --smtp-config FILE --to RECIPIENT --key KEY [--contacts FILE] --json; status-email --state-dir DIR --key KEY --json. Standard library only for notification; preserve existing behavior and dependencies. Success one JSON object schema_version1,status=channel-accepted,notification_id,key,delivery_task_id,message_id,reused,receipt_status=unverified,read_status=unverified. Structured errors exit2. No packaging, upload, signing, URL renewal, attachment, CC/BCC or template customization in this task.",
+      "verification": "surface"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "Contacts JSON exact schema {schema_version:1,contacts:{alias:addr_spec}}; aliases Unicode exact/case-sensitive/nonempty, single target strings; reject duplicate keys, malformed shapes and unknown fields as CONTACTS_INVALID. No recursion. Direct ASCII addr-spec bypasses contacts file; unknown alias CONTACT_NOT_FOUND. Validate entire single address, never parse a substring: local part dot-atom <=64 characters with no leading/trailing/consecutive dot, domain ASCII DNS labels with no leading/trailing hyphen, no empty labels, entire address<=254. Preserve local case/lowercase domain. Reject controls including CR LF NUL DEL, whitespace, display names, angle brackets, comma/semicolon, quoted local parts, non-ASCII mailbox. User invalid mailbox=>RECIPIENT_INVALID; invalid config sender=>CONFIG_INVALID. Reject address/header injection before any transport call. Alias inputs/keys must not contain ASCII controls. Alias without contacts_path=>CONTACTS_INVALID; alias absent from a valid contacts file=>CONTACT_NOT_FOUND.",
+      "verification": "contacts"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "SMTP config exact JSON fields schema_version=1,host,port,tls,username,password_file,from_address,timeout_seconds. Host nonempty DNS hostname/IP without controls/whitespace/URL; port integer1..65535, timeout finite numeric1..60, booleans invalid, tls implicit or starttls, username nonempty with no controls. Password file UTF8 nonempty; remove at most one terminal LF or CRLF, preserve other spaces. Relative password_file resolves against config parent. Config/contacts/password files real owner-private regular files0600 or stricter, no lexical symlink components. Invalid config or password=>CONFIG_INVALID, contacts=>CONTACTS_INVALID. Production notification.SmtpTransport.prepare(config,from_addr,to_addr) connects, verifies certificate+hostname with ssl.create_default_context, performs EHLO, required STARTTLS then EHLO when selected, login, MAIL FROM and RCPT TO, but never DATA. prepare receives validated in-memory config including password. submit(message,from_addr,to_addr) accepts EmailMessage, sends DATA only and returns {status:channel-accepted,smtp_code:<final2xx>} only on positive final reply; all negative/ambiguous submit responses raise or fail safely. close() best effort. No plaintext TLS fallback/debug logging. Injectable transport API-only; config validation identical even when injected.",
+      "verification": "smtp"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Use accepted FD004B private handoff read-only, no Qiniu calls. New notification requires remote task state link-verified; revoking/object-deleted/other states=>DELIVERY_NOT_READY. Existing read-only remote helper or equivalent notification logic allowed. Validate task_id,object_key,archive_sha256,archive_size,expires_at,password_file and URL digest against remote DB. URL must match recorded digest; expiration integer currenttime<expires_at or LINK_EXPIRED. Expected handoff directory remote-handoffs/task_id.json and expected password path remote-bundles/task_id/password.txt; validate private owner permissions and every lexical path component before reading. Reject substituted paths/symlinks/tampered fields/DB or missing secrets with STATE_INVALID; no following arbitrary password_file. Fixed text EmailMessage with one From/To, stable persisted Message-ID, subject fixed product prefix plus notification_id, body contains URL,password,archive_size,expires_at, no attachments. Body/secrets in memory only, URL remains only existing protected handoff and password only existing bundle file at rest. Before a new submission validate the existing bundle with archive.verify so a changed password or corrupted encrypted archive cannot be mailed as usable; verification failure=>STATE_INVALID with no SMTP preparation. This is read-only and does not repackage.",
+      "verification": "handoff"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "Use separate notifications.sqlite3 and private locks in state dir, no changes to remote lifecycle. State private directory0700/current owner, DB/locks0600; reject lexical symlinks, wrong ownership or group/other permissions as STATE_INVALID. Notification keys existing safe regex. Persist notification id and stable message id before network. Fingerprint binds source delivery key/task_id/archive hash/handoff identity digest, canonical recipient, sender, normalized host/port/TLS/username; excludes secret bytes/password-file location. Same alias target/direct mailbox equivalent; retarget alias or changed recipient/source/destination=>IDEMPOTENCY_CONFLICT. Same-key accepted returns stored channel acceptance,reused=true with zero transport calls even after source expires; status is persisted history not refreshed availability. Unknown/sending prior result never sends again. Password rotation alone permits explicit safe prepared retry. Serialize same key with OS lock <=5second deadline. Status offline requires no config/remote input/network and returns safe state,metadata,last_error,retryable,receipt/read unverified, never secret body/URL/password/SMTP credentials. Secrets and raw external errors must not enter DB/stdout/status/logs; recipient routing metadata may be stored in private DB.",
+      "verification": "identity"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "States prepared,sending,channel-accepted,failed-before-send,unknown. prepare exceptions before any DATA persist failed-before-send with safe SMTP_CONNECT/SMTP_TLS/SMTP_AUTH/SMTP_REJECTED or SMTP_PREPARE and retryable=true; no automatic retries, later explicit matching send may retry. Commit sending before submit, checkpoint(before_submit) after commit. submit any exception/nonpositive/malformed result or interruption leaves unknown/no retry; record SMTP_UNKNOWN and retryable=false. checkpoint(after_submit) runs after positive final DATA but before accepted commit; death/error/DB commit failure there must not permit same-key resubmission. Positive accepted persisted then close/quit error preserves accepted. Recover prior sending as unknown, never resubmit. Both real process exit checkpoints must be tested; before_submit crash conservatively unknown even when no actual DATA. Returned accepted does not claim receipt/read. Callback exceptions sanitized. Before the durable sending boundary classify known SMTP/SSL exceptions first into the safe SMTP vocabulary; otherwise an ordinary unclassified OSError maps IO_ERROR with failed-before-send/retryable=true; unknown authority wins over ordinary IO errors once submission may have begun.",
+      "verification": "outcomes"
+    },
+    {
+      "id": "AC-7",
+      "behavior": "Stable sanitized errors, no arbitrary provider text or traceback. Normalize injected error codes to controlled vocabulary. Unknown task TASK_NOT_FOUND, corrupt notification or required remote DB STATE_INVALID, invalid key INVALID_KEY, BUSY bounded. CLI statuses reflect same API and remain offline; missing private files must fail before prepare. Tests include actual fork/exit, concurrency, samekey unknown nonresend, TLS mocks, address injection, private handoff tamper, revoked/expired rejection and secret rotation. All service data synthetic and no real SMTP/Qiniu operations; this delivers offline-qualified implementation only, real channel acceptance pending explicit config/recipient/authority. Preserve all old controller/Worker suites without weakening tests.",
+      "verification": "diagnostics"
+    }
+  ],
+  "preferences": [
+    "Equivalent implementations accepted; no style-only refactor required.",
+    "Keep notification isolated; remote.py changes only minimal read-only validated-handoff helper if chosen."
+  ],
+  "context": [
+    "Frozen against accepted FD004C business commit0fb7169 and published controller regressions; implement only the declared SMTP/contact scope.",
+    "Read AGENTS.md docs/plans/implementation.md contracts/FD-004B.json and accepted FD004C lifecycle. Worker cannot edit contracts,controller tests,docs,evidence or publishing.",
+    "Two-phase seam prepare(config,from_addr,to_addr), submit(EmailMessage,from_addr,to_addr), close; no network before validation. Config dict contains normalized connection fields and password only in memory.",
+    "No true external-send authority is inferred from Coding Plan permission. All tests synthetic. No actual SMTP/Qiniu operations in this implementation run.",
+    "Current delivery policy and stagnation conditions govern calls within existing authorization; legacy budget schema is not an implicit two-call ceiling."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 4,
+    "timeout_seconds": 1800
+  }
+}

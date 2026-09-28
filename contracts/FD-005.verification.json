@@ -1,0 +1,50 @@
+{
+  "AC-1": [
+    "test_fd005_notification.NotificationTests.test_surface_message_and_privacy",
+    "test_fd005_notification.NotificationTests.test_cli_help_and_offline_status"
+  ],
+  "AC-2": [
+    "test_fd005_notification.NotificationTests.test_contacts_and_injection",
+    "test_fd005_notification.NotificationTests.test_alias_control_characters_rejected_before_transport"
+  ],
+  "AC-3": [
+    "test_fd005_notification.NotificationTests.test_config_rejects_before_transport",
+    "test_fd005_notification.NotificationTests.test_production_tls_and_data_boundary",
+    "test_fd005_notification.NotificationTests.test_starttls_failure_cannot_login_or_submit",
+    "test_fd005_notification.NotificationTests.test_production_recipient_rejection_is_before_data"
+  ],
+  "AC-4": [
+    "test_fd005_notification.NotificationTests.test_handoff_validation_and_lifecycle",
+    "test_fd005_notification.NotificationTests.test_handoff_paths_and_expiry",
+    "test_fd005_notification.NotificationTests.test_changed_bundle_password_or_archive_is_not_mailed",
+    "test_fd005_notification.NotificationTests.test_corrupt_required_remote_database_blocks_prepare"
+  ],
+  "AC-5": [
+    "test_fd005_notification.NotificationTests.test_idempotency_alias_and_rotation",
+    "test_fd005_notification.NotificationTests.test_concurrent_same_key_submits_once",
+    "test_fd005_notification.NotificationTests.test_status_offline_and_safe",
+    "test_fd005_notification.NotificationTests.test_accepted_history_survives_expiry",
+    "test_fd005_notification.NotificationTests.test_busy_deadline_while_another_process_prepares"
+  ],
+  "AC-6": [
+    "test_fd005_notification.NotificationTests.test_prepare_failure_explicit_retry_secret_rotation",
+    "test_fd005_notification.NotificationTests.test_oserror_before_sending_boundary_is_safe_io_error",
+    "test_fd005_notification.NotificationTests.test_unknown_never_resends",
+    "test_fd005_notification.NotificationTests.test_malformed_submit_is_unknown",
+    "test_fd005_notification.NotificationTests.test_close_failure_preserves_acceptance",
+    "test_fd005_notification.NotificationTests.test_real_fork_crash_boundaries",
+    "test_fd005_notification.NotificationTests.test_submit_checkpoint_exception_is_safe_unknown",
+    "test_fd005_notification.NotificationTests.test_injected_uncontrolled_error_code_is_normalized"
+  ],
+  "AC-7": [
+    "test_fd005_notification.NotificationTests.test_status_offline_and_safe",
+    "test_fd005_notification.NotificationTests.test_cli_help_and_offline_status",
+    "test_fd005_notification.NotificationTests.test_config_rejects_before_transport",
+    "test_fd005_notification.NotificationTests.test_unknown_never_resends",
+    "test_fd005_notification.NotificationTests.test_real_fork_crash_boundaries",
+    "test_fd005_notification.NotificationTests.test_corrupt_notification_database_status_is_state_invalid",
+    "test_fd005_notification.NotificationTests.test_corrupt_required_remote_database_blocks_prepare",
+    "test_fd005_notification.NotificationTests.test_injected_uncontrolled_error_code_is_normalized",
+    "test_fd005_notification.NotificationTests.test_busy_deadline_while_another_process_prepares"
+  ]
+}
