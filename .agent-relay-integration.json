@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "rules_version": 1,
+  "rules_sha256": "49034a8870cafae2a94f7f4889fd7e396998928b11700cf4ac0de85174b03879",
+  "skill_sha256": "de5c46551d97195925c9d2716fee6a4118147c2ac0906933062ce94c46aad1e5",
+  "framework_revision": "1caca2aa31a51dd0c05c7009bff413bbd08360c1",
+  "authority": "User 2026-09-28 explicitly authorizes multiple ZCode calls through FD004-FD006; migrate managed defaults for new runs only and preserve historical contracts, usage and current Coding Plan channel.",
+  "before_snapshot_sha256": "a2e4ab1610b6a7329b114078f4778e79e5d577f9802e08cdb8b5f33f4767c1e1",
+  "agents_after_sha256": "93bdc31440259cd16273c7626f05711051c57dc643770503d8f71e66c41c9067"
+}
