@@ -242,5 +242,59 @@ class DeliverLocalCliTests(unittest.TestCase):
         self.assertEqual(value["error"]["code"], "STATE_INVALID")
 
 
+class DeliverQiniuCliTests(unittest.TestCase):
+    """CLI surface checks that need no provider traffic."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name).resolve()
+        self.root = self.base / "root"
+        self.root.mkdir()
+        (self.root / "a.txt").write_bytes(b"payload")
+        self.state = self.base / "state"
+        self.config = self.base / "qiniu.json"
+
+    def run_cli(self, *args):
+        env = {"PYTHONPATH": str(PROJECT / "src"), "PYTHONDONTWRITEBYTECODE": "1",
+               "PATH": "/usr/bin:/bin"}
+        return subprocess.run([sys.executable, "-B", "-m", "file_delivery", *args],
+                              cwd=PROJECT, env=env, capture_output=True, text=True, timeout=60)
+
+    def test_deliver_qiniu_invalid_key_exit2(self):
+        r = self.run_cli("deliver-qiniu", str(self.root), "--root", str(self.root),
+                         "--state-dir", str(self.state), "--config", str(self.config),
+                         "--key", "bad key!", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertEqual(value["error"]["code"], "INVALID_KEY")
+        self.assertNotIn("Traceback", r.stderr)
+
+    def test_deliver_qiniu_invalid_ttl_exit2(self):
+        r = self.run_cli("deliver-qiniu", str(self.root), "--root", str(self.root),
+                         "--state-dir", str(self.state), "--config", str(self.config),
+                         "--key", "k1", "--ttl-seconds", "0", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "CONFIG_INVALID")
+
+    def test_status_qiniu_unknown_key_exit2(self):
+        r = self.run_cli("status-qiniu", "--state-dir", str(self.state),
+                         "--key", "nope", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertEqual(value["error"]["code"], "TASK_NOT_FOUND")
+        self.assertNotIn("Traceback", r.stderr)
+
+    def test_remote_help(self):
+        for args in (["deliver-qiniu", "--help"], ["status-qiniu", "--help"]):
+            with self.subTest(args=args):
+                r = self.run_cli(*args)
+                self.assertEqual(r.returncode, 0)
+                self.assertTrue(r.stdout.strip())
+
+
 if __name__ == "__main__":
     unittest.main()

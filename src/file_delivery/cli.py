@@ -58,6 +58,27 @@ def build_parser() -> argparse.ArgumentParser:
     status_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private ledger state directory")
     status_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key")
     status_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    deliver_qiniu_parser = subparsers.add_parser(
+        "deliver-qiniu",
+        help="idempotently deliver an encrypted bundle to a private Qiniu bucket",
+    )
+    deliver_qiniu_parser.add_argument("paths", nargs="+", metavar="PATH", help="input files or directories")
+    deliver_qiniu_parser.add_argument("--root", required=True, metavar="ROOT", help="root directory of all inputs")
+    deliver_qiniu_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
+    deliver_qiniu_parser.add_argument("--config", required=True, metavar="FILE", help="owner-only Qiniu config JSON file")
+    deliver_qiniu_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key ([A-Za-z0-9_-]{1,64})")
+    deliver_qiniu_parser.add_argument("--ttl-seconds", type=int, default=604800, metavar="N", help="signed link lifetime in seconds (default 604800)")
+    deliver_qiniu_parser.add_argument("--retention-days", type=int, default=30, metavar="N", help="remote object retention in days (default 30)")
+    deliver_qiniu_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    status_qiniu_parser = subparsers.add_parser(
+        "status-qiniu",
+        help="show the persisted remote delivery task for a key",
+    )
+    status_qiniu_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
+    status_qiniu_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key")
+    status_qiniu_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
     return parser
 
 
@@ -77,6 +98,14 @@ def main(argv: list[str] | None = None) -> int:
             from file_delivery import ledger
             result = ledger.deliver_local(
                 args.paths, args.root, args.state_dir, args.store_dir, args.key)
+        elif args.command == "deliver-qiniu":
+            from file_delivery import remote
+            result = remote.deliver(
+                args.paths, args.root, args.state_dir, args.config, args.key,
+                ttl_seconds=args.ttl_seconds, retention_days=args.retention_days)
+        elif args.command == "status-qiniu":
+            from file_delivery import remote
+            result = remote.status(args.state_dir, args.key)
         else:
             from file_delivery import ledger
             result = ledger.status(args.state_dir, args.key)

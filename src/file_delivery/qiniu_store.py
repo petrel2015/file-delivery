@@ -167,6 +167,7 @@ class QiniuStore:
                  timeout_seconds=DEFAULT_TIMEOUT_SECONDS, session=None) -> None:
         Auth, _, _ = _load_qiniu()
         self._auth = Auth(access_key, secret_key)
+        self._access_key = access_key
         self._bucket = bucket
         self._region = region
         self._domain = download_domain.rstrip("/")
@@ -189,6 +190,16 @@ class QiniuStore:
     def __repr__(self) -> str:  # never expose credentials
         return (f"QiniuStore(bucket={self._bucket!r}, region={self._region!r}, "
                 f"timeout_seconds={self._timeout})")
+
+    def identity(self) -> dict:
+        """Stable non-secret identity of this store's destination bucket."""
+        return {
+            "provider": "qiniu",
+            "bucket": self._bucket,
+            "region": self._region,
+            "download_domain": self._domain,
+            "account_id": hashlib.sha256(self._access_key.encode("utf-8")).hexdigest(),
+        }
 
     # ---- transport ----------------------------------------------------
 
