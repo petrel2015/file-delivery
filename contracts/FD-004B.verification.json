@@ -1,0 +1,20 @@
+{
+  "AC-1": [
+    "test_fd004b_remote.RemoteTests.test_api"
+  ],
+  "AC-2": [
+    "test_fd004b_remote.RemoteTests.test_identity"
+  ],
+  "AC-3": [
+    "test_fd004b_remote.RemoteTests.test_delivery"
+  ],
+  "AC-4": [
+    "test_fd004b_remote.RemoteTests.test_recovery"
+  ],
+  "AC-5": [
+    "test_fd004b_remote.RemoteTests.test_handoff"
+  ],
+  "AC-6": [
+    "test_fd004b_remote.RemoteTests.test_safety"
+  ]
+}

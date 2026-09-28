@@ -3,8 +3,10 @@
   "rules_version": 1,
   "rules_sha256": "49034a8870cafae2a94f7f4889fd7e396998928b11700cf4ac0de85174b03879",
   "skill_sha256": "de5c46551d97195925c9d2716fee6a4118147c2ac0906933062ce94c46aad1e5",
-  "framework_revision": "1caca2aa31a51dd0c05c7009bff413bbd08360c1",
-  "authority": "User 2026-09-28 explicitly authorizes multiple ZCode calls through FD004-FD006; migrate managed defaults for new runs only and preserve historical contracts, usage and current Coding Plan channel.",
-  "before_snapshot_sha256": "a2e4ab1610b6a7329b114078f4778e79e5d577f9802e08cdb8b5f33f4767c1e1",
+  "skill_reference_sha256": "8cc88c5a981b66423361a1187015913763e84f03ba614d1847f2ca2ae3e58af8",
+  "runtime_sha256": "4205e19f3895072c2f052f209f209ce6f423ee89525cef05dfa0ff59cf3984fb",
+  "framework_revision": "966da95088a8f2cb5c102b988bc6ed90d0728d82",
+  "authority": "Bind committed framework preflight 966da95 before new FD004B baseline; user authorized continued delivery, same Coding Plan, no frozen history changes.",
+  "before_snapshot_sha256": "6cac071eac9da4a8bb60905453f3586e234836c0340d8453ea40923cb5b3e481",
   "agents_after_sha256": "93bdc31440259cd16273c7626f05711051c57dc643770503d8f71e66c41c9067"
 }

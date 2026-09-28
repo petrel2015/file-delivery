@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-004B",
+  "revision": 1,
+  "objective": "Deliver encrypted bundles to Qiniu through a durable idempotent remote ledger and usable CLI, preserving recovered secrets and truthful remote status.",
+  "scope": [
+    "src/file_delivery/remote.py",
+    "src/file_delivery/qiniu_store.py",
+    "src/file_delivery/cli.py",
+    "src/file_delivery/errors.py",
+    "tests/test_remote.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Implement remote.deliver(paths,root,state_dir,config_path,key,*,ttl_seconds=604800,retention_days=30,store=None,checkpoint=None) and remote.status(state_dir,key). Add CLI deliver-qiniu PATH... --root ROOT --state-dir DIR --config FILE --key KEY [--ttl-seconds N] [--retention-days N] --json; status-qiniu --state-dir DIR --key KEY --json. Production uses real QiniuStore; injectable store is API-only controller test seam. Preserve all previous behavior/tests and base optional dependencies. Structured business failures exit2, success JSON schema_version1.",
+      "verification": "api"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "Add QiniuStore.identity() returning provider=qiniu,bucket,region,download_domain(normalized origin without trailing slash),account_id=SHA256 UTF8 access_key. No raw credentials. Validate real config through QiniuStore.from_file even when store is injected; bind normalized config identity independently of injected store. Store SQLite remote.sqlite3 and random unique task_id/object_key per first request in private state. object_key uses file-delivery/<task_id>.zip with no input filenames. Samekey fingerprint binds canonical root+deduplicated manifest paths/size/SHA256+provider identity+ttl/retention. Duplicate same request reuses task/bundle/password/object, no re-encryption or second upload. Changed content or destination/policy=>IDEMPOTENCY_CONFLICT; secret_key rotation alone allowed. Different state dirs must not collide even using same logical key.",
+      "verification": "identity"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "Use archive.pack/verify and durable private bundle at state_dir/remote-bundles/<task_id>. Never replace or delete an existing bundle on verification failure, including a pending task with no recorded SHA. Persist task before packing. Query store.stat before upload; existing object must match local qiniu.etag and archive byte size else REMOTE_CONFLICT; only None permits store.upload with specified retention. Before ANY uploaded or link-verified success call store.ensure_private; then call store.verify_download(object_key,archive_sha256,archive_size) on every completed request including duplicates. No success based only on local DB or upload response. Never upload anything except encrypted archive.zip. No implicit overwrite or delete.",
+      "verification": "delivery"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Persist pending,packaged,uploading,uploaded,link-verified with committed short transitions, including uploading before side effect. Store safe last_error code only, sanitize exceptions from injected provider/checkpoint without original text. A provider REMOTE_UNKNOWN stops immediately, never repeats upload in same command; later explicit deliver reconciles stat/readback and reuses bundle/object. Callback checkpoint(stage) supports after_pack (bundle durable before packaged DB commit), after_upload (provider upload returned before uploaded commit), after_link (private handoff durable before link-verified commit). OSError=>IO_ERROR and preserve artifacts; actual process exit at these points must recover. Serialize same-key calls with OS lock and <=5second acquisition deadline; retain old local ledger semantics.",
+      "verification": "recovery"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "Return schema_version,status=link-verified,task_id,key,object_key,archive_sha256,archive_size,file_count,total_bytes,password_file,handoff_file,expires_at,reused. Write state_dir/remote-handoffs/<task_id>.json atomically0600 containing url,expires_at,password_file,task_id,object_key,archive_sha256,archive_size; plaintext password stays only bundle/password.txt. No signed URL/password/access key/secret key in stdout, status, DB or logs. Select expires_at once, persist before signing; use remaining TTL when first signing so retries do not extend original deadline. Existing valid handoff after crash is adopted unchanged. Invalid/tampered handoff is STATE_INVALID rather than returned. On duplicate or recovery after original link deadline =>LINK_EXPIRED; no upload or silent renewal, preserve old records. status requires no config/input/network, reports persisted state, handoff/password paths only if present, metadata and safe last_error; unknown key TASK_NOT_FOUND.",
+      "verification": "handoff"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "Reuse safe path validation: state outside inputroot and not ancestor, lexical symlink rejection before normalization; config outside inputroot (reject CONFIG_INVALID), state new0700 or existing owner-private, DB/locks/handoff0600. Reject symlink DB/lock/bundle/handoff files before using them. Unsafe state=>STATE_INVALID. key regex same as local. TTL integer1..604800, retention integer1..3650, bool invalid, ttl<=retention*86400; invalid=>CONFIG_INVALID before remote calls. IO failures=>IO_ERROR, corruptedDB=>STATE_INVALID, no raw traceback through CLI. status validates state paths. Test Unicode roundtrip, conflicts, no-secret data, concurrency, samepassword recovery at all3checkpoints, unknownupload reconciliation and actual process interruption. Real Qiniu, revoke/cleanup and SMTP are follow-on acceptance, not claimed here.",
+      "verification": "safety"
+    }
+  ],
+  "preferences": [
+    "Use existing ledger helpers where safe; no style-only rewrites.",
+    "Keep HTTP/provider logic in QiniuStore and orchestration in remote; no generic plugin architecture needed."
+  ],
+  "context": [
+    "Read AGENTS.md docs/plans/FD-004B.md and original contracts FD002,FD003,FD004A. Worker may not edit contracts/controller tests/docs/evidence.",
+    "All credentials and objects in tests synthetic. No real Qiniu/SMTP operations. No shell permitted by Worker tool protocol; controller runs tests.",
+    "2026-09-28 user authorizes multiple ZCode calls to finish FD004-006 with current Coding Plan. Explicit private delivery policy controls actual calls and watchdogs; legacy budget is schema compatibility, not an implicit two-submission ceiling. Preserve all history.",
+    "Provider test protocol: ensure_private(),stat(key)->None or{key,etag,size},upload(path,key,retention_days)->{status:uploaded,key,etag,size},verify_download(key,sha,size)->{status:link-verified,sha256,size},signed_url(key,ttl_seconds)->{url,expires_at}. Synthetic injected store follows this existing API.",
+    "Framework .venv Python has archive+qiniu dependencies. All commands/tests should suppress bytecode."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 3,
+    "timeout_seconds": 1800
+  }
+}
