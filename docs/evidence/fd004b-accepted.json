@@ -1,0 +1,186 @@
+{
+  "work_id": "FD-004B",
+  "status": "accepted_offline_remote_delivery",
+  "business_commit": "2545baf65be7e77a26078f3930a0871f83077761",
+  "reviewed_candidate_sha": "ea84819125088601737abc2fac905d9a560e6aaa",
+  "contract_digest": "45d227326add3971d86bda4d8cd560a33dd0496ddeb39c983e5336e995cbb6d8",
+  "business_sources_and_tests_equal_reviewed_candidate": true,
+  "worker_submissions": 4,
+  "repairs": 3,
+  "codex_review_count": 3,
+  "observed_provider_tokens": 1720808,
+  "usage_complete": true,
+  "money_cost": null,
+  "codex_usage": null,
+  "validation": {
+    "controller_tests": 54,
+    "worker_tests": 109,
+    "independent_review_regressions": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "isolated_wheel_install": "passed with archive,qiniu extras",
+    "installed_synthetic_delivery_duplicate_and_status": "passed",
+    "live_qiniu_calls": 0
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "candidate_sha": "9c37646ed5693469fc5394410152d7be7281f311",
+      "qualified": true,
+      "tokens": 973285,
+      "usage_complete": true,
+      "controller_tests": 54,
+      "failed_tests": [
+        "test_fd004b_remote.RemoteTests.test_handoff"
+      ],
+      "money_cost": null
+    },
+    {
+      "number": 2,
+      "candidate_sha": "0e729010489f2095def4df5e50407d6c5a4e6161",
+      "qualified": true,
+      "tokens": 180675,
+      "usage_complete": true,
+      "controller_tests": 54,
+      "failed_tests": [],
+      "money_cost": null
+    },
+    {
+      "number": 3,
+      "candidate_sha": "866de5f23c660e3eb48aaec99aa4402f09d61110",
+      "qualified": true,
+      "tokens": 458817,
+      "usage_complete": true,
+      "controller_tests": 54,
+      "failed_tests": [],
+      "money_cost": null
+    },
+    {
+      "number": 4,
+      "candidate_sha": "ea84819125088601737abc2fac905d9a560e6aaa",
+      "qualified": true,
+      "tokens": 108031,
+      "usage_complete": true,
+      "controller_tests": 54,
+      "failed_tests": [],
+      "money_cost": null
+    }
+  ],
+  "review_outcomes": [
+    {
+      "round": 1,
+      "candidate_sha": "0e729010489f2095def4df5e50407d6c5a4e6161",
+      "status": "changes_required",
+      "findings": [
+        {
+          "id": "R1-HANDOFF",
+          "criterion_ids": [
+            "AC-5"
+          ],
+          "priority": 1,
+          "title": "Handoff integrity is incomplete for expiry and crash recovery",
+          "locations": [
+            "src/file_delivery/remote.py:212",
+            "src/file_delivery/remote.py:237",
+            "src/file_delivery/remote.py:395"
+          ],
+          "repro_cases": [
+            "handoff_expiry_tamper",
+            "after_link_crash_url_tamper"
+          ],
+          "observed": "See exact deterministic observations in review_regressions1.json",
+          "expected": "Changing handoff expires_at must raise STATE_INVALID; changing URL after after_link checkpoint failure must raise STATE_INVALID instead of adopting attacker URL. Current first case returns link-verified with differing file/result expiration, second adopts attacker URL and records its digest.",
+          "minimal_repair": "Bind every contractual handoff field including expiry to durable task state; durably bind URL digest before exposing handoff/checkpoint so recovery validates rather than trusts first observed content. Keep valid crash recovery and original deadline unchanged."
+        },
+        {
+          "id": "R1-PATHS",
+          "criterion_ids": [
+            "AC-6"
+          ],
+          "priority": 1,
+          "title": "State permission and parent symlink validation are incomplete",
+          "locations": [
+            "src/file_delivery/remote.py:277",
+            "src/file_delivery/remote.py:440"
+          ],
+          "repro_cases": [
+            "status_public_state",
+            "handoff_parent_symlink"
+          ],
+          "observed": "See exact deterministic observations in review_regressions1.json",
+          "expected": "status on state directory chmod0755 must reject unsafe state. A preexisting remote-handoffs symlink to another private directory must be rejected before provider activity/private-file creation; currently deliver succeeds and writes handoff outside state.",
+          "minimal_repair": "Validate existing state ownership/private permissions in status and reject lexical symlink components of generated state subdirectories before following/chmod/reading/writing. Apply same necessary check to bundle/lock/handoff parents; no global ledger refactor required."
+        },
+        {
+          "id": "R1-SANITIZE",
+          "criterion_ids": [
+            "AC-4",
+            "AC-6"
+          ],
+          "priority": 1,
+          "title": "Checkpoint exception and provider code can expose arbitrary sensitive text",
+          "locations": [
+            "src/file_delivery/remote.py:101",
+            "src/file_delivery/remote.py:339",
+            "src/file_delivery/remote.py:410"
+          ],
+          "repro_cases": [
+            "checkpoint_runtime_error",
+            "provider_untrusted_code"
+          ],
+          "observed": "See exact deterministic observations in review_regressions1.json",
+          "expected": "RuntimeError(PRIVATE_SENTINEL_CHECKPOINT) must become safe structured DeliveryError with safe persisted code; current exception propagates unchanged. DeliveryError(PRIVATE_SENTINEL_CODE,...) from provider must not use arbitrary text as return/error/DB last_error; currently marker survives both.",
+          "minimal_repair": "Wrap callback failures at remote boundary and normalize provider/callback error codes to known safe codes; preserve documented OSError=>IO_ERROR and REMOTE_UNKNOWN no-repeat behavior. Never store raw exception text/code that is outside controlled error vocabulary."
+        }
+      ],
+      "usage": null,
+      "money_cost": null
+    },
+    {
+      "round": 2,
+      "candidate_sha": "866de5f23c660e3eb48aaec99aa4402f09d61110",
+      "status": "changes_required",
+      "findings": [
+        {
+          "id": "R1-PATHS-STATUS",
+          "criterion_ids": [
+            "AC-6"
+          ],
+          "priority": 1,
+          "location": "src/file_delivery/remote.py:545",
+          "title": "Status still follows private-state subdirectory symlinks",
+          "observed": "After a normal delivery, move remote-handoffs or remote-bundles outside state and replace it with a symlink. status() returns link-verified and returns handoff/password path through that symlink. Both reproduced offline with synthetic provider.",
+          "expected": "Reject symlink components in the private paths status examines before following/returning them; unsafe state=>STATE_INVALID per AC6.",
+          "minimal_repair": "Apply read-only lexical component validation to handoff and password paths/status subdirectories. Do not create dirs or contact provider in status. Lock subtree not examined by status is not added as a new requirement.",
+          "scope_relation": "Residual affected surface of prior R1-PATHS, not a new feature or style request.",
+          "evidence": "review-status-paths-attempt3.json"
+        }
+      ],
+      "usage": null,
+      "money_cost": null
+    },
+    {
+      "round": 3,
+      "candidate_sha": "ea84819125088601737abc2fac905d9a560e6aaa",
+      "status": "accepted",
+      "findings": [],
+      "usage": null,
+      "money_cost": null
+    }
+  ],
+  "publication": {
+    "branch": "main",
+    "pushed": true
+  },
+  "remaining": [
+    "FD004C revoke and retention cleanup",
+    "real Qiniu upload/download/expiry/delete readback",
+    "FD005 SMTP",
+    "FD006 Hermes Skill/MCP"
+  ],
+  "audit_limits": [
+    "Coordinator/review-coordination intervals recorded; whole task coverage remains partial.",
+    "Independent Reviewer rollout shares session id; separate binding rejected. Reviewer usage remains null."
+  ]
+}

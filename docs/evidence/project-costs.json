@@ -39,18 +39,28 @@
       "money_cost": null,
       "codex_review_count": 3,
       "status": "accepted_offline_provider_adapter"
+    },
+    {
+      "work_id": "FD-004B",
+      "worker_submissions": 4,
+      "observed_provider_tokens": 1720808,
+      "usage_complete": true,
+      "incomplete_attempts": [],
+      "money_cost": null,
+      "codex_review_count": 3,
+      "status": "accepted_offline_remote_delivery"
     }
   ],
-  "worker_submissions": 13,
+  "worker_submissions": 17,
   "repairs": {
-    "ordinary": 4,
+    "ordinary": 7,
     "explicit_additional": 3,
-    "total": 7
+    "total": 10
   },
-  "codex_review_count": 11,
-  "observed_provider_tokens": 2770351,
+  "codex_review_count": 14,
+  "observed_provider_tokens": 4491159,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,
-  "scope": "Every real Worker submission for FD001-004A, including rejected candidates, historical interruptions and three explicitly linked additional repairs. FD004A accepted as offline-qualified provider adapter; full remote delivery is not complete. Framework fixes used no Worker calls."
+  "scope": "All real Worker submissions through FD004B including rejected candidates and interruptions. FD004B is offline-accepted remote orchestration; complete real delivery remains pending. Latest user authority allows multiple continued repairs without resetting history."
 }
