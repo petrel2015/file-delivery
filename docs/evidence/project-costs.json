@@ -32,25 +32,25 @@
     },
     {
       "work_id": "FD-004A",
-      "worker_submissions": 2,
-      "observed_provider_tokens": 653155,
+      "worker_submissions": 3,
+      "observed_provider_tokens": 791014,
       "usage_complete": true,
       "incomplete_attempts": [],
       "money_cost": null,
-      "codex_review_count": 2,
-      "status": "changes_required"
+      "codex_review_count": 3,
+      "status": "accepted_offline_provider_adapter"
     }
   ],
-  "worker_submissions": 12,
+  "worker_submissions": 13,
   "repairs": {
     "ordinary": 4,
-    "explicit_additional": 2,
-    "total": 6
+    "explicit_additional": 3,
+    "total": 7
   },
-  "codex_review_count": 10,
-  "observed_provider_tokens": 2632492,
+  "codex_review_count": 11,
+  "observed_provider_tokens": 2770351,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,
-  "scope": "Every real Worker submission for FD001-004A, including rejected candidates and historical interrupted calls. FD004A remains unaccepted. Framework change used zero Worker calls; Codex/framework monetary usage not inferred."
+  "scope": "Every real Worker submission for FD001-004A, including rejected candidates, historical interruptions and three explicitly linked additional repairs. FD004A accepted as offline-qualified provider adapter; full remote delivery is not complete. Framework fixes used no Worker calls."
 }

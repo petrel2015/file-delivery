@@ -1,0 +1,108 @@
+{
+  "work_id": "FD-004A",
+  "status": "accepted_offline_provider_adapter",
+  "business_commit": "4e5453217431fd9818ba60cb6511e7f1f8038168",
+  "reviewed_candidate_sha": "aef4d1b22ff1953b6383c6520cad1f44e5cd818c",
+  "business_sources_and_tests_equal_reviewed_candidate": true,
+  "additional_repair_contract": "FD-004A-R1 revision2",
+  "authorization": "2026-09-28 user explicitly authorized one additional ZCode call for raw download-domain control-character validation.",
+  "worker_submissions": 3,
+  "repairs": {
+    "ordinary": 1,
+    "explicit_additional": 1
+  },
+  "codex_review_count": 3,
+  "observed_provider_tokens": 791014,
+  "usage_complete": true,
+  "money_cost": null,
+  "codex_usage": null,
+  "additional_invocation": {
+    "worker_submissions": 1,
+    "observed_provider_tokens": 137859,
+    "terminal_event_verified": true,
+    "model_execution_verified": true,
+    "requested": {
+      "model": "GLM-5.3",
+      "reasoning": "low",
+      "max_output_tokens_override": null
+    },
+    "money_cost": null
+  },
+  "validation": {
+    "controller_tests": 48,
+    "worker_tests": 94,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "independent_control_character_cases": 99,
+    "independent_valid_origins": 3,
+    "isolated_wheel_install": "passed with archive,qiniu extras",
+    "installed_control_cases": 33,
+    "installed_console_help": "passed",
+    "live_qiniu_calls": 0
+  },
+  "review": {
+    "schema_version": 1,
+    "work_id": "FD-004A-R1",
+    "parent_work_id": "FD-004A",
+    "candidate_sha": "aef4d1b22ff1953b6383c6520cad1f44e5cd818c",
+    "contract_digest": "1e903e0706b066e860c1dff6aa41918725d06da4631b016b7f1d42e615427a12",
+    "contract_revision": 2,
+    "decision": "accepted",
+    "review_round": 1,
+    "parent_total_review_round": 3,
+    "reviewer": "independent Codex subagent fd004a_review",
+    "usage": null,
+    "money_cost": null,
+    "codex_rollout_path": null,
+    "findings": [],
+    "resolved": [
+      "R2-domain-incomplete: original C0/DEL characters rejected before urlsplit can normalize them, with sanitized CONFIG_INVALID and no network."
+    ],
+    "evidence": {
+      "diff": "Compared prepared baseline c406073: provider adds3 lines, Worker tests20 lines; no unrelated source changes.",
+      "independent_offline_probe": {
+        "invalid_controls": 99,
+        "description": "All33 C0/DEL characters tested at hostname end, inside hostname and after trailing slash; all rejected CONFIG_INVALID.",
+        "valid_origins": 3,
+        "valid_description": "HTTPS hostname, trailing slash, explicit443 port preserve from_file and offline signed_url."
+      },
+      "controller_verification": {
+        "status": "passed",
+        "tests": 48,
+        "candidate_bound": true,
+        "source": "file-delivery-fd004a-additional-repair/state.json"
+      },
+      "worker_tests": {
+        "tests": 94,
+        "status": "passed",
+        "source": ".agent-relay/fd004a-r1/worker-tests.log"
+      },
+      "candidate_status": "clean"
+    },
+    "limitations": [
+      "Technical acceptance of FD-004A provider slice only; not complete FD-004 delivery, real service acceptance, integration or publication.",
+      "No live Qiniu/SMTP access or provider account operations performed.",
+      "Parent two submissions/two reviews and additional authorization retained; no further Worker invocation authorized.",
+      "Own Codex rollout path not reliably established; review usage and money unknown, not attributed from parent rollout."
+    ]
+  },
+  "publication": {
+    "branch": "main",
+    "pushed": true
+  },
+  "history": [
+    "fd004a-first-candidate.json",
+    "fd004a-review-blocked.json"
+  ],
+  "remaining": [
+    "FD004 persistent remote ledger and CLI",
+    "authorized real Qiniu upload/download SHA256/expiry/delete readback",
+    "FD005 SMTP",
+    "FD006 Hermes Skill and MCP"
+  ],
+  "audit_limits": [
+    "Coordinator and parent review-coordination intervals captured; earlier history remains partly unallocated.",
+    "Independent subagent rollout not reliably identified; its usage remains null."
+  ]
+}
