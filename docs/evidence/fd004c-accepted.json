@@ -1,0 +1,245 @@
+{
+  "work_id": "FD-004C",
+  "status": "accepted_offline_revocation_cleanup",
+  "business_commit": "0fb71697d8ec2be15fdb965bdabd9144214567c0",
+  "reviewed_candidate_sha": "efb93fce2684d1218fd09c17c1037acc8f878027",
+  "source_tests_equal": true,
+  "remote_head_verified": "0fb71697d8ec2be15fdb965bdabd9144214567c0",
+  "contract_digest": "980415b4cda84dbd7d522795b485dfc67064564bff4077a42ee02b547266a84a",
+  "worker_submissions": 6,
+  "repairs": 5,
+  "codex_review_count": 5,
+  "observed_provider_tokens": 3203011,
+  "usage_complete": true,
+  "money_cost": null,
+  "codex_usage": null,
+  "validation": {
+    "controller_tests": 61,
+    "worker_tests": 136,
+    "independent_regressions": 8,
+    "metadata_recovery_matrix": 18,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "isolated_wheel_install": "passed",
+    "installed_cli_synthetic_delivery_revoke_cleanup": "passed",
+    "live_qiniu_calls": 0
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "candidate_sha": "37ac6c1bff636e2d86f025aba2d6b401e3c9af05",
+      "tokens": 1328707,
+      "usage_complete": true,
+      "controller_tests": 61,
+      "failed_tests": [
+        "test_fd004c_remote.LifecycleTests.test_probe"
+      ],
+      "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_stderr_sha256": "c477d2b71caa60ca83218ea6119ca5a27e3cfc06ac2c57fe43acfbfd6c39fa52",
+      "money_cost": null
+    },
+    {
+      "number": 2,
+      "candidate_sha": "93d48a21967ecde4526b60daaac8137ee32792e0",
+      "tokens": 198352,
+      "usage_complete": true,
+      "controller_tests": 61,
+      "failed_tests": [],
+      "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_stderr_sha256": "943914d4c44731b8ff2e4ebf04bc46b4100fb91e7cc3e8cc748f78b55eb613d6",
+      "money_cost": null
+    },
+    {
+      "number": 3,
+      "candidate_sha": "c51b035674e323028704b1c4730296a91ed2c7b9",
+      "tokens": 873958,
+      "usage_complete": true,
+      "controller_tests": 61,
+      "failed_tests": [],
+      "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_stderr_sha256": "a537ace94ce68a0dfbad0dddc85216003c5127781ba22956e70a5078765bd027",
+      "money_cost": null
+    },
+    {
+      "number": 4,
+      "candidate_sha": "282f6ad3ae2ff4200be17fe10cfa965c5ca1c434",
+      "tokens": 145446,
+      "usage_complete": true,
+      "controller_tests": 61,
+      "failed_tests": [],
+      "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_stderr_sha256": "25117a353169e522d9c71ef7e1279b9ae4df9519f4576c784c2b400704935d5c",
+      "money_cost": null
+    },
+    {
+      "number": 5,
+      "candidate_sha": "30a3fec4b672623762367ef78dd9fdbef6c8a98f",
+      "tokens": 120042,
+      "usage_complete": true,
+      "controller_tests": 61,
+      "failed_tests": [],
+      "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_stderr_sha256": "581df7bebbcbf4ce9c01dd1db0bc5e07029ed29190f4f6a32c1a740b316d2329",
+      "money_cost": null
+    },
+    {
+      "number": 6,
+      "candidate_sha": "efb93fce2684d1218fd09c17c1037acc8f878027",
+      "tokens": 536506,
+      "usage_complete": true,
+      "controller_tests": 61,
+      "failed_tests": [],
+      "test_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_stderr_sha256": "00138152598ffca260381827968ba19e115a143fc2c2b3400b45b9c77fad3715",
+      "money_cost": null
+    }
+  ],
+  "reviews": [
+    {
+      "round": 1,
+      "candidate_sha": "93d48a21967ecde4526b60daaac8137ee32792e0",
+      "status": "changes_required",
+      "finding_ids": [
+        "R1-LEGACY",
+        "R1-REDELETE",
+        "R1-PROBE-ERROR",
+        "R1-PROBE-AUTH",
+        "R1-OWNERSHIP",
+        "R1-MISSING-HANDOFF",
+        "R1-UNIT-FIXTURES"
+      ],
+      "findings": [
+        {
+          "id": "R1-LEGACY",
+          "title": "Legacy metadata is inferred during duplicate deliver",
+          "classification": "business_defect",
+          "criterion_ids": [
+            "AC-2"
+          ]
+        },
+        {
+          "id": "R1-REDELETE",
+          "title": "Confirmed-deleted task can issue another delete",
+          "classification": "business_defect",
+          "criterion_ids": [
+            "AC-5"
+          ]
+        },
+        {
+          "id": "R1-PROBE-ERROR",
+          "title": "Probe exception exposes raw text and aborts cleanup",
+          "classification": "business_defect",
+          "criterion_ids": [
+            "AC-5",
+            "AC-6"
+          ]
+        },
+        {
+          "id": "R1-PROBE-AUTH",
+          "title": "Session auth reintroduces Authorization into supposedly credential-free probe",
+          "classification": "business_defect",
+          "criterion_ids": [
+            "AC-4"
+          ]
+        },
+        {
+          "id": "R1-OWNERSHIP",
+          "title": "Matching corrupted task-id/object-key pair passes ownership check",
+          "classification": "business_defect",
+          "criterion_ids": [
+            "AC-2"
+          ]
+        },
+        {
+          "id": "R1-MISSING-HANDOFF",
+          "title": "Missing previously persisted handoff is treated as never issued",
+          "classification": "business_defect",
+          "criterion_ids": [
+            "AC-5"
+          ]
+        },
+        {
+          "id": "R1-UNIT-FIXTURES",
+          "title": "Four Worker unit fixtures fail for incorrect setup/assertions",
+          "classification": "test_fixture_defect",
+          "criterion_ids": [
+            "AC-1"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "candidate_sha": "c51b035674e323028704b1c4730296a91ed2c7b9",
+      "status": "changes_required",
+      "finding_ids": [
+        "R1-LEGACY-PARTIAL",
+        "R1-PROBE-AUTH-NETRC"
+      ],
+      "findings": [
+        {
+          "id": "R1-LEGACY-PARTIAL",
+          "title": null,
+          "classification": null,
+          "criterion_ids": null
+        },
+        {
+          "id": "R1-PROBE-AUTH-NETRC",
+          "title": null,
+          "classification": null,
+          "criterion_ids": null
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "candidate_sha": "282f6ad3ae2ff4200be17fe10cfa965c5ca1c434",
+      "status": "changes_required",
+      "finding_ids": [
+        "R1-LEGACY-COMPLETED-TUPLE"
+      ],
+      "findings": [
+        {
+          "id": "R1-LEGACY-COMPLETED-TUPLE",
+          "title": null,
+          "classification": null,
+          "criterion_ids": [
+            "AC-2"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "candidate_sha": "30a3fec4b672623762367ef78dd9fdbef6c8a98f",
+      "status": "changes_required",
+      "finding_ids": [
+        "R1-LEGACY-STATE-REWRITE"
+      ],
+      "findings": [
+        {
+          "id": "R1-LEGACY-STATE-REWRITE",
+          "title": null,
+          "classification": null,
+          "criterion_ids": [
+            "AC-2"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "candidate_sha": "efb93fce2684d1218fd09c17c1037acc8f878027",
+      "status": "accepted",
+      "finding_ids": [],
+      "findings": []
+    }
+  ],
+  "limits": [
+    "Offline adapter/orchestration/lifecycle acceptance only; real Qiniu and SMTP remain pending",
+    "Object deletion is separate from old link availability and recipient receipt",
+    "Review matrix fault hook adjusted for atomic equivalent upload-intent transition; original fixture failure preserved",
+    "Codex role intervals and subagent attribution remain partial; money cost unknown"
+  ]
+}

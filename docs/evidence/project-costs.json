@@ -49,18 +49,27 @@
       "money_cost": null,
       "codex_review_count": 3,
       "status": "accepted_offline_remote_delivery"
+    },
+    {
+      "work_id": "FD-004C",
+      "worker_submissions": 6,
+      "observed_provider_tokens": 3203011,
+      "usage_complete": true,
+      "money_cost": null,
+      "codex_review_count": 5,
+      "status": "accepted_offline_revocation_cleanup"
     }
   ],
-  "worker_submissions": 17,
+  "worker_submissions": 23,
   "repairs": {
-    "ordinary": 7,
+    "ordinary": 12,
     "explicit_additional": 3,
-    "total": 10
+    "total": 15
   },
-  "codex_review_count": 14,
-  "observed_provider_tokens": 4491159,
+  "codex_review_count": 19,
+  "observed_provider_tokens": 7694170,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,
-  "scope": "All real Worker submissions through FD004B including rejected candidates and interruptions. FD004B is offline-accepted remote orchestration; complete real delivery remains pending. Latest user authority allows multiple continued repairs without resetting history."
+  "scope": "All real Worker submissions through FD004C, including rejected candidates and interruptions. Technical delivery remains separate from actual service integration; historical unknown usage/cost is preserved."
 }
