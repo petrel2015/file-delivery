@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-004C",
+  "revision": 1,
+  "objective": "Complete ledger-owned Qiniu object revocation and retention cleanup while separately reporting old-link availability; offline adapter acceptance is not live delivery acceptance.",
+  "scope": [
+    "src/file_delivery/remote.py",
+    "src/file_delivery/qiniu_store.py",
+    "src/file_delivery/cli.py",
+    "src/file_delivery/errors.py",
+    "tests/test_remote.py",
+    "tests/test_qiniu_store.py",
+    "tests/test_cli.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Implement remote.revoke(state_dir,config_path,key,*,store=None) and remote.cleanup(state_dir,config_path=None,*,dry_run=True,store=None,now=None). CLI revoke-qiniu --state-dir DIR --config FILE --key KEY --json and cleanup-qiniu --state-dir DIR [--config FILE] [--execute] --json; cleanup defaults to dry-run, execute requires config. API store injection only. Return schema_version1; CLI structured failures exit2, successful reports exit0. Preserve prior FD004A/B contracts, tests and optional dependency behavior. No arbitrary object-key delete CLI/API argument.",
+      "verification": "api"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "On each new deliver task, persist normalized Qiniu provider identity and retention_days. Immediately before the first upload intent/provider upload side effect, select and persist first_upload_at and immutable retention_expires_at=first_upload_at+retention_days*86400; do not start object retention while still packing. An explicit retry never renews this timestamp. status exposes retention_expires_at for new rows without secrets. Binding is derived from real validated config even when store injected, not from store.identity. Config must match persisted provider identity for revoke/execute cleanup; mismatch=>IDEMPOTENCY_CONFLICT for revoke or safe identity-mismatch item for cleanup, zero provider calls for that task. Secret-key-only rotation allowed. Legacy rows missing any required destination/retention metadata must never be deleted: revoke=>STATE_INVALID, cleanup item reason metadata-missing. Schema migration preserves existing rows/paths/secrets and does not infer destination from object prefix or current config. Only exact ledger-owned file-delivery/<task_id>.zip targets may be used; corrupted/mismatched ownership=>STATE_INVALID. No bucket listing/prefix sweep.",
+      "verification": "ownership"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "Use per-key OS lock with existing<=5second deadline. Persist state=revoking before possible delete side effect; explicitly call stat first, only delete if object exists. Confirm stat None after returned delete before persisting state=object-deleted. Provider unknown stops immediately with sanitized REMOTE_UNKNOWN; never retry delete within same invocation. Next explicit revoke reconciles stat first; absent object needs no repeated delete. On revoking or object-deleted, deliver samekey=>TASK_REVOKED without upload/renewal even when original link deadline expired. Newkey remains available. Delete uncertainty must not look like confirmed deletion. Retain local bundle,password,handoff byte-for-byte. status reports persisted state and safe last_error; missing key TASK_NOT_FOUND. Revoke works without original input/config secrets stored locally, using caller config; original inputs may be gone.",
+      "verification": "revoke"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Add QiniuStore.probe_link(url) using injectable Session.request, bounded HTTPS GET stream=True, allow_redirects=False, no Authorization header/cookies/management token, finite configured timeout, no automatic retry; close response without downloading content. Only accept URL on configured HTTPS origin (hostname and effective port equal), nonempty object path, no credentials, raw ASCII C0/DEL, fragment or invalid parsing; reject unsafe URL with CONFIG_INVALID before request. Never accept other host, HTTP or scheme-relative input. Probe can include original signed URL query, but errors/results/logs must not expose it. Return {status:link-accessible,http_status:200} only for200; 401/403/404/612=>link-unavailable; other HTTP=>link-unknown retaining numeric http_status; network exception=>link-unknown,http_status:null. No claim about cached copies or received/downloaded files.",
+      "verification": "probe"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "Successful revoke result contains schema_version1,status=object-deleted,key,task_id,object_key,link_status,link_http_status. Link status is independent of object deletion: use previously issued URL only from validated existing B handoff bound to task/path/hash; malformed/tampered/symlink handoff=>STATE_INVALID before any deletion. If no handoff was ever persisted, object may be deleted but link_status=link-unknown,http_status=null. Probe unavailable/unknown does not erase confirmed object-deleted; already deleted explicit revoke may re-probe but must not delete again. Never sign a fresh URL for this probe. Original expired links still may be probed/revoked. Preserve no-secret stdout/status/DB/logs, safe path validation, private modes and provider exception sanitization. No claim of cache purge or recall.",
+      "verification": "link"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "cleanup dry_run=True is read-only, requires no config and performs zero provider calls, uploads/deletes/signing/network. now defaults epoch time, optional test seam requires nonnegative integer notbool. Return status=cleanup-dry-run and items containing safe key/task_id/object_key/eligible/reason; reasons due,not-due,already-revoked,metadata-missing. A new task is due when now>=immutable retention_expires_at (not link expires_at). dryrun must not mutate DB or task status. execute only deletes due valid owned tasks whose persisted identity matches real config, using same revoke flow; skips notdue/alreadyrevoked/metadata-missing/identity-mismatch. Process multiple tasks independently; preserve unknown/failure per task with safe code and continue other eligible tasks without implicit retries. Return cleanup-complete if no task execution failure, cleanup-partial otherwise, items with outcomes. Never delete local bundles/passwords/handoffs or unowned remote objects. No real provider acceptance claimed by offline tests.",
+      "verification": "cleanup"
+    }
+  ],
+  "preferences": [
+    "Smallest cohesive extension of accepted FD004B; no style-only refactor or unrelated feature."
+  ],
+  "context": [
+    "Read docs/plans/FD-004C.md. Metadata requirements are new FD004C scope; retain all accepted FD004B behavior except explicit revoked-state refusal.",
+    "Use approved AgentRelay generic business dispatch and existing current ZCode Coding Plan; actual private delivery-policy governs submissions. No real uploads/deletes/email or provider cost authorized by this draft.",
+    "Only synthetic configs, durable FakeStore, injected transport; all controller tests immutable after freeze. Read original contracts/FD-004A.json and FD-004B.json.",
+    "Legacy budget fields are schema compatibility; private policy and user authorization control dispatch."
+  ],
+  "budget": {
+    "max_repairs": 1,
+    "max_review_rounds": 3,
+    "timeout_seconds": 1800
+  }
+}

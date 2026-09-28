@@ -1,0 +1,20 @@
+{
+  "AC-1": [
+    "test_fd004c_remote.LifecycleTests.test_api"
+  ],
+  "AC-2": [
+    "test_fd004c_remote.LifecycleTests.test_ownership"
+  ],
+  "AC-3": [
+    "test_fd004c_remote.LifecycleTests.test_revoke"
+  ],
+  "AC-4": [
+    "test_fd004c_remote.LifecycleTests.test_probe"
+  ],
+  "AC-5": [
+    "test_fd004c_remote.LifecycleTests.test_link"
+  ],
+  "AC-6": [
+    "test_fd004c_remote.LifecycleTests.test_cleanup"
+  ]
+}
