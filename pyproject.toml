@@ -11,6 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 archive = ["pyzipper==0.4.0"]
+qiniu = ["qiniu==7.18.0"]
 
 [project.scripts]
 file-delivery = "file_delivery.cli:main"
