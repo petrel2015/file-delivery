@@ -393,6 +393,78 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(responses[1].closed_count, 1)
 
 
+@unittest.skipUnless(QINIU_AVAILABLE, "qiniu not installed")
+class ProbeLinkTests(unittest.TestCase):
+    SIGNED = ("https://dl.example.com/bundles/2026/09/archive.zip"
+              "?e=4102444800&token=abc-signature")
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name).resolve()
+
+    def _probe(self, handler, data=None):
+        session = FakeSession(handler)
+        store = _store(session, data or CONFIG)
+        return store, session, store.probe_link(self.SIGNED)
+
+    def test_accessible_only_on_http_200(self):
+        response = FakeResponse(200, b"never downloaded")
+
+        def handler(method, url, kwargs):
+            self.assertEqual(kwargs.get("stream"), True)
+            self.assertEqual(kwargs.get("allow_redirects"), False)
+            # A None header value means "remove this header" in requests, so
+            # the effective value must be absent or falsy, never a secret.
+            probe_headers = kwargs.get("headers") or {}
+            self.assertFalse(probe_headers.get("Authorization"))
+            self.assertFalse(probe_headers.get("Cookie"))
+            return response
+
+        _, session, result = self._probe(handler)
+        self.assertEqual(result, {"status": "link-accessible", "http_status": 200})
+        self.assertEqual(len(session.calls), 1)  # single attempt, no retry
+        self.assertEqual(response.closed_count, 1)
+        self.assertEqual(session.calls[0]["url"], self.SIGNED)
+
+    def test_status_mapping(self):
+        for status, expected in [
+                (401, "link-unavailable"), (403, "link-unavailable"),
+                (404, "link-unavailable"), (612, "link-unavailable"),
+                (302, "link-unknown"), (500, "link-unknown"), (613, "link-unknown")]:
+            _, _, result = self._probe(_seq_handler([FakeResponse(status)]))
+            self.assertEqual(result, {"status": expected, "http_status": status})
+
+    def test_network_exception_is_unknown_without_status(self):
+        _, _, result = self._probe(
+            _seq_handler([requests.exceptions.ConnectionError("boom")]))
+        self.assertEqual(result, {"status": "link-unknown", "http_status": None})
+
+    def test_unsafe_urls_rejected_before_request(self):
+        session = FakeSession(lambda *a: None)
+        store = _store(session)
+        urls = [
+            "http://dl.example.com/key.zip?token=x",     # wrong scheme
+            "//dl.example.com/key.zip",                  # scheme-relative
+            "https://evil.example.com/key.zip?token=x",  # other host
+            "https://dl.example.com:8443/key.zip",       # other port
+            "https://ak:sk@dl.example.com/key.zip",      # credentials
+            "https://dl.example.com/",                   # empty object path
+            "https://dl.example.com",                    # empty object path
+            "https://dl.example.com/key.zip#frag",       # fragment
+            "https://dl.example.com/key.zip?token=a\tb",  # raw control char
+            "https://dl.example.com/key\x7f.zip",        # DEL
+            "https://[invalid/key.zip",                  # invalid parsing
+            "", None, 123,
+        ]
+        for url in urls:
+            with self.assertRaises(errors.DeliveryError, msg=repr(url)) as ctx:
+                store.probe_link(url)
+            self.assertEqual(ctx.exception.code, errors.CONFIG_INVALID)
+            self.assertNotIn("token", str(ctx.exception))
+        self.assertEqual(session.calls, [])
+
+
 def io_bytes(data):
     import io
     return io.BytesIO(data)

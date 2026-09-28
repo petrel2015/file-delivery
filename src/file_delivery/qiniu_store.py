@@ -391,6 +391,121 @@ class QiniuStore:
             raise errors.DeliveryError(errors.REMOTE_INTEGRITY, "downloaded content did not match the expected hash or size")
         return {"status": "link-verified", "sha256": digest.hexdigest(), "size": size}
 
+    def _validate_probe_url(self, url) -> None:
+        """Reject any probe URL that is not a safe HTTPS URL on our origin."""
+        def unsafe() -> errors.DeliveryError:
+            return errors.DeliveryError(
+                errors.CONFIG_INVALID,
+                "link URL is not a safe HTTPS URL on the configured origin")
+
+        if not isinstance(url, str) or not url.startswith("https://"):
+            raise unsafe()
+        try:
+            url.encode("ascii")
+        except UnicodeEncodeError:
+            raise unsafe() from None
+        # urlsplit silently strips tab/CR/LF, so check the raw value first
+        if any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in url):
+            raise unsafe()
+        try:
+            parts = urlsplit(url)
+            port = parts.port
+            origin = urlsplit(self._domain)
+            origin_port = origin.port
+        except ValueError:
+            raise unsafe() from None
+        if parts.scheme != "https" or parts.fragment:
+            raise unsafe()
+        if parts.username is not None or parts.password is not None:
+            raise unsafe()
+        if not parts.hostname or not origin.hostname:
+            raise unsafe()
+        if parts.hostname.lower() != origin.hostname.lower():
+            raise unsafe()
+        if (port or 443) != (origin_port or 443):
+            raise unsafe()
+        if parts.path in ("", "/"):
+            raise unsafe()
+
+    def probe_link(self, url) -> dict:
+        """Credential-free bounded availability probe of an existing signed URL.
+
+        The URL is validated against the configured HTTPS origin before any
+        request. The single streamed GET carries no Authorization header and
+        never follows redirects; the response is closed without reading its
+        body. The probe never signs a fresh URL and never retries.
+        """
+        self._validate_probe_url(url)
+        # A None header value strips a session-level Authorization/Cookie
+        # default during request preparation; the session cookie jar must
+        # also be neutralized because requests merges it into every request,
+        # and so must session-level auth (e.g. HTTPBasicAuth), which would
+        # otherwise put credentials on the prepared request even without an
+        # Authorization header. Original session state is restored after.
+        headers = {"Authorization": None, "Cookie": None}
+        cookies = getattr(self._session, "cookies", None)
+        swap_cookies = cookies is not None
+        if swap_cookies:
+            try:
+                self._session.cookies = cookies.__class__()
+            except Exception:
+                swap_cookies = False
+        saved_auth = getattr(self._session, "auth", None)
+        swap_auth = False
+        try:
+            self._session.auth = None
+            swap_auth = True
+        except Exception:
+            swap_auth = False
+        # trust_env=True would let request preparation fall back to netrc
+        # credentials even with session auth cleared, so it is disabled for
+        # the probe only and restored afterwards.
+        saved_trust_env = getattr(self._session, "trust_env", None)
+        swap_trust_env = False
+        try:
+            self._session.trust_env = False
+            swap_trust_env = True
+        except Exception:
+            swap_trust_env = False
+        try:
+            response = self._session.request(
+                "GET", url, headers=headers, allow_redirects=False,
+                verify=True, timeout=self._timeout, stream=True)
+        except Exception:
+            return {"status": "link-unknown", "http_status": None}
+        finally:
+            if swap_trust_env:
+                try:
+                    self._session.trust_env = saved_trust_env
+                except Exception:
+                    pass
+            if swap_auth:
+                try:
+                    self._session.auth = saved_auth
+                except Exception:
+                    pass
+            if swap_cookies:
+                try:
+                    self._session.cookies = cookies
+                except Exception:
+                    pass
+        try:
+            status = response.status_code
+        except Exception:
+            return {"status": "link-unknown", "http_status": None}
+        finally:
+            try:
+                response.close()
+            except Exception:
+                pass
+        if not _is_int(status):
+            return {"status": "link-unknown", "http_status": None}
+        if status == 200:
+            return {"status": "link-accessible", "http_status": 200}
+        if status in (401, 403, 404, 612):
+            return {"status": "link-unavailable", "http_status": status}
+        return {"status": "link-unknown", "http_status": status}
+
     def delete(self, key) -> dict:
         self._validate_key(key)
         url = self._rs_url("delete", key)

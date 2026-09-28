@@ -79,6 +79,24 @@ def build_parser() -> argparse.ArgumentParser:
     status_qiniu_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
     status_qiniu_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key")
     status_qiniu_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    revoke_qiniu_parser = subparsers.add_parser(
+        "revoke-qiniu",
+        help="revoke a delivered Qiniu object for a ledger key",
+    )
+    revoke_qiniu_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
+    revoke_qiniu_parser.add_argument("--config", required=True, metavar="FILE", help="owner-only Qiniu config JSON file matching the task destination")
+    revoke_qiniu_parser.add_argument("--key", required=True, metavar="KEY", help="idempotency key of the task to revoke")
+    revoke_qiniu_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    cleanup_qiniu_parser = subparsers.add_parser(
+        "cleanup-qiniu",
+        help="preview (or with --execute, perform) retention cleanup of delivered Qiniu objects",
+    )
+    cleanup_qiniu_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
+    cleanup_qiniu_parser.add_argument("--config", metavar="FILE", help="owner-only Qiniu config JSON file; required with --execute")
+    cleanup_qiniu_parser.add_argument("--execute", action="store_true", help="actually delete due objects (default is a read-only dry run)")
+    cleanup_qiniu_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
     return parser
 
 
@@ -106,6 +124,13 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "status-qiniu":
             from file_delivery import remote
             result = remote.status(args.state_dir, args.key)
+        elif args.command == "revoke-qiniu":
+            from file_delivery import remote
+            result = remote.revoke(args.state_dir, args.config, args.key)
+        elif args.command == "cleanup-qiniu":
+            from file_delivery import remote
+            result = remote.cleanup(args.state_dir, args.config,
+                                    dry_run=not args.execute)
         else:
             from file_delivery import ledger
             result = ledger.status(args.state_dir, args.key)

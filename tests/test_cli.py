@@ -289,11 +289,37 @@ class DeliverQiniuCliTests(unittest.TestCase):
         self.assertNotIn("Traceback", r.stderr)
 
     def test_remote_help(self):
-        for args in (["deliver-qiniu", "--help"], ["status-qiniu", "--help"]):
+        for args in (["deliver-qiniu", "--help"], ["status-qiniu", "--help"],
+                     ["revoke-qiniu", "--help"], ["cleanup-qiniu", "--help"]):
             with self.subTest(args=args):
                 r = self.run_cli(*args)
                 self.assertEqual(r.returncode, 0)
                 self.assertTrue(r.stdout.strip())
+
+    def test_revoke_qiniu_unknown_key_exit2(self):
+        r = self.run_cli("revoke-qiniu", "--state-dir", str(self.state),
+                         "--config", str(self.config), "--key", "nope", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertEqual(value["error"]["code"], "TASK_NOT_FOUND")
+        self.assertNotIn("Traceback", r.stderr)
+
+    def test_cleanup_qiniu_dry_run_unknown_state_exit2(self):
+        r = self.run_cli("cleanup-qiniu", "--state-dir", str(self.state), "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "TASK_NOT_FOUND")
+
+    def test_cleanup_qiniu_execute_without_config_exit2(self):
+        self.state.mkdir(parents=True, exist_ok=True)
+        (self.state / "remote.sqlite3").write_bytes(b"not sqlite")
+        r = self.run_cli("cleanup-qiniu", "--state-dir", str(self.state),
+                         "--execute", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertNotIn("Traceback", r.stderr)
 
 
 if __name__ == "__main__":

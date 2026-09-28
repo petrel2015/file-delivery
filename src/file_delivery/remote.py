@@ -12,6 +12,7 @@ import contextlib
 import hashlib
 import json
 import os
+import re
 import secrets
 import sqlite3
 import stat as stat_module
@@ -37,8 +38,14 @@ STATE_PACKAGED = "packaged"
 STATE_UPLOADING = "uploading"
 STATE_UPLOADED = "uploaded"
 STATE_LINK_VERIFIED = "link-verified"
+STATE_REVOKING = "revoking"
+STATE_OBJECT_DELETED = "object-deleted"
 
 _OBJECT_PREFIX = "file-delivery"
+
+# Ledger-owned task ids are exactly "fd-" plus 32 lowercase hex chars; any
+# other value means the row was corrupted or hand-edited.
+_TASK_ID_RE = re.compile(r"fd-[0-9a-f]{32}\Z")
 
 # The complete controlled error vocabulary; any code outside it (e.g. from an
 # injected provider or checkpoint) is never echoed, returned or persisted.
@@ -62,6 +69,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     total_bytes INTEGER,
     expires_at INTEGER,
     url_sha256 TEXT,
+    provider_identity TEXT,
+    retention_days INTEGER,
+    first_upload_at INTEGER,
+    retention_expires_at INTEGER,
     last_error TEXT,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
     updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
@@ -221,6 +232,14 @@ def _open_db(state_dir: Path) -> sqlite3.Connection:
         with contextlib.suppress(sqlite3.Error):
             # Ledger from a build without url binding; NULL keeps loading lenient.
             conn.execute("ALTER TABLE tasks ADD COLUMN url_sha256 TEXT")
+        # FD-004C destination/retention metadata; legacy rows stay NULL and
+        # are never deleted, and nothing is inferred from the current config.
+        for column, col_type in (("provider_identity", "TEXT"),
+                                 ("retention_days", "INTEGER"),
+                                 ("first_upload_at", "INTEGER"),
+                                 ("retention_expires_at", "INTEGER")):
+            with contextlib.suppress(sqlite3.Error):
+                conn.execute(f"ALTER TABLE tasks ADD COLUMN {column} {col_type}")
         conn.commit()
         os.chmod(db_path, 0o600)
     except errors.DeliveryError:
@@ -357,13 +376,22 @@ def deliver(paths, root, state_dir, config_path, key, *,
                 task_id = "fd-" + secrets.token_hex(16)
                 object_key = f"{_OBJECT_PREFIX}/{task_id}.zip"
                 conn.execute(
-                    "INSERT INTO tasks (key, task_id, object_key, fingerprint, state) "
-                    "VALUES (?, ?, ?, ?, ?)",
-                    (key, task_id, object_key, fingerprint, STATE_PENDING))
+                    "INSERT INTO tasks (key, task_id, object_key, fingerprint, state, "
+                    "provider_identity, retention_days) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (key, task_id, object_key, fingerprint, STATE_PENDING,
+                     json.dumps(identity, sort_keys=True, ensure_ascii=True),
+                     retention_days))
                 conn.commit()
                 recorded_sha = None
                 expires_at = None
+            if row is None:
+                entry_state = STATE_PENDING
             else:
+                if row["state"] in (STATE_REVOKING, STATE_OBJECT_DELETED):
+                    _record_error(conn, key, errors.TASK_REVOKED)
+                    raise errors.DeliveryError(
+                        errors.TASK_REVOKED,
+                        "task was revoked; use a new key for a new delivery")
                 if row["fingerprint"] != fingerprint:
                     _record_error(conn, key, errors.IDEMPOTENCY_CONFLICT)
                     raise errors.DeliveryError(
@@ -371,6 +399,7 @@ def deliver(paths, root, state_dir, config_path, key, *,
                         "key already used with different content, destination or policy; "
                         "original task is preserved")
                 task_id = row["task_id"]
+                entry_state = row["state"]
                 object_key = row["object_key"]
                 recorded_sha = row["archive_sha256"]
                 expires_at = row["expires_at"]
@@ -404,15 +433,60 @@ def deliver(paths, root, state_dir, config_path, key, *,
                 archive_path = bundle_dir / archive.ARCHIVE_NAME
                 archive_size = os.stat(archive_path).st_size
                 _run_checkpoint(checkpoint, "after_pack")
-                _set_state(conn, key, STATE_PACKAGED,
-                           archive_sha256=bundle["archive_sha256"],
-                           archive_size=archive_size,
-                           bundle_path=str(bundle_dir),
-                           password_file=bundle["password_file"],
-                           file_count=bundle["file_count"],
-                           total_bytes=bundle["total_bytes"])
+                # State never regresses: a row that already progressed past
+                # packing keeps its later state, so re-entry can never
+                # rewrite a historically qualified row (one whose upload
+                # timestamps were corrupted to NULL after the fact) into
+                # looking like a fresh pre-upload task.
+                if entry_state in (STATE_PENDING, STATE_PACKAGED):
+                    _set_state(conn, key, STATE_PACKAGED,
+                               archive_sha256=bundle["archive_sha256"],
+                               archive_size=archive_size,
+                               bundle_path=str(bundle_dir),
+                               password_file=bundle["password_file"],
+                               file_count=bundle["file_count"],
+                               total_bytes=bundle["total_bytes"])
 
-                _set_state(conn, key, STATE_UPLOADING)
+                # Retention starts with the first upload intent, never while
+                # still packing. Rows created before this metadata existed
+                # keep NULL columns forever: backfilling from the current
+                # config/time would grant delete eligibility the ledger never
+                # recorded, so only rows that already carry identity and
+                # retention get their first-upload timestamps selected.
+                # The row must also still be positively identified as
+                # pre-upload-intent (pending or packaged as fetched at entry):
+                # a row that ever reached the upload-intent transition has
+                # state at or beyond uploading, and because the timestamps
+                # are selected atomically with that transition, NULL dates
+                # on such a row mean the historical record was corrupted and
+                # must never be backfilled. A state rewrite can no longer
+                # launder that qualification because state never regresses.
+                legacy_row = row is not None and not (
+                    _row_field(row, "provider_identity") is not None
+                    and _row_field(row, "retention_days") is not None
+                    and _row_field(row, "first_upload_at") is None
+                    and _row_field(row, "retention_expires_at") is None
+                    and entry_state in (STATE_PENDING, STATE_PACKAGED))
+                if not legacy_row:
+                    upload_now = int(time.time())
+                    conn.execute(
+                        "UPDATE tasks SET state = ?, "
+                        "provider_identity = COALESCE(provider_identity, ?), "
+                        "retention_days = COALESCE(retention_days, ?), "
+                        "first_upload_at = COALESCE(first_upload_at, ?), "
+                        "retention_expires_at = COALESCE(retention_expires_at, ?), "
+                        "updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') "
+                        "WHERE key = ?",
+                        (STATE_UPLOADING,
+                         json.dumps(identity, sort_keys=True, ensure_ascii=True),
+                         retention_days, upload_now,
+                         upload_now + retention_days * 86400, key))
+                    conn.commit()
+                elif entry_state in (STATE_PENDING, STATE_PACKAGED):
+                    # Legacy row without complete destination metadata:
+                    # proceed with the upload-intent transition but never
+                    # select retention timestamps for it.
+                    _set_state(conn, key, STATE_UPLOADING)
                 _provider("bucket privacy check", provider.ensure_private)
                 local_etag = _local_etag(archive_path)
                 existing = _provider("stat", provider.stat, object_key)
@@ -562,9 +636,10 @@ def status(state_dir, key) -> dict:
         "key": key,
     }
     for field in ("object_key", "archive_sha256", "archive_size", "file_count",
-                  "total_bytes", "expires_at"):
-        if row[field] is not None:
-            result[field] = row[field]
+                  "total_bytes", "expires_at", "retention_expires_at"):
+        value = _row_field(row, field)
+        if value is not None:
+            result[field] = value
     handoff_dir = state_real / HANDOFFS_DIR
     handoff_path = handoff_dir / f"{row['task_id']}.json"
     if os.path.lexists(handoff_path):
@@ -580,3 +655,283 @@ def status(state_dir, key) -> dict:
     if row["last_error"]:
         result["last_error"] = row["last_error"]
     return result
+
+
+# ---- revocation and retention cleanup (FD-004C) ---------------------------
+
+_RETENTION_METADATA = ("provider_identity", "retention_days",
+                       "first_upload_at", "retention_expires_at")
+
+
+def _row_field(row, name):
+    """Read a possibly-absent column from a row of a legacy-schema ledger."""
+    try:
+        return row[name]
+    except (IndexError, KeyError):
+        return None
+
+
+def _config_path_abs(config_path) -> Path:
+    config = Path(os.fspath(config_path)).expanduser()
+    if not config.is_absolute():
+        config = Path.cwd() / config
+    return config
+
+
+def _load_config_identity(config_path) -> tuple[QiniuStore, dict]:
+    """Validate the caller's real config file; identity never comes from an
+    injected store, so revocation is always bound to the configured
+    destination actually recorded in the ledger."""
+    store = QiniuStore.from_file(_config_path_abs(config_path))
+    return store, store.identity()
+
+
+def _existing_state_dir(state_dir) -> Path:
+    state_real = ledger._strict_abs_path(state_dir)
+    if os.path.lexists(state_real):
+        try:
+            ledger._check_existing_private_dir(state_real)
+        except OSError as exc:
+            raise errors.DeliveryError(
+                errors.IO_ERROR,
+                f"cannot access state directory: {exc.strerror or exc}") from None
+    db_path = state_real / DB_NAME
+    if not os.path.lexists(db_path):
+        raise errors.DeliveryError(
+            errors.TASK_NOT_FOUND, "no remote ledger database found")
+    _reject_symlink_file(db_path, "remote ledger database")
+    try:
+        if not stat_module.S_ISREG(os.lstat(db_path).st_mode):
+            raise _state_invalid("remote ledger database is not a regular file")
+    except OSError as exc:
+        raise errors.DeliveryError(
+            errors.IO_ERROR,
+            f"cannot access remote ledger database: {exc.strerror or exc}") from None
+    return state_real
+
+
+def _probe_old_link(provider, handoff_url) -> tuple[str, int | None]:
+    """Report the availability of a previously issued URL, if probeable.
+
+    The probe itself is credential-free; an unavailable or failed probe is
+    reported as unknown and never exposes the signed URL.
+    """
+    probe = getattr(provider, "probe_link", None)
+    if probe is None:
+        return "link-unknown", None
+    try:
+        probed = probe(handoff_url)
+    except Exception:
+        # Any probe failure (including unknown injected-provider errors) is
+        # reported as unknown; provider text never leaks into results.
+        return "link-unknown", None
+    if not isinstance(probed, dict) or probed.get("status") not in (
+            "link-accessible", "link-unavailable", "link-unknown"):
+        return "link-unknown", None
+    http_status = probed.get("http_status")
+    return probed["status"], http_status if _is_int(http_status) else None
+
+
+def _revoke_row(conn: sqlite3.Connection, state_real: Path,
+                provider, identity: dict, key: str) -> dict:
+    """Delete the ledger-owned object for key; link status is separate."""
+    row = conn.execute("SELECT * FROM tasks WHERE key = ?", (key,)).fetchone()
+    if row is None:
+        raise errors.DeliveryError(
+            errors.TASK_NOT_FOUND, f"no remote task found for key: {key}")
+    task_id = row["task_id"]
+    object_key = row["object_key"]
+    # Ownership is validated from the row itself before any private path is
+    # derived or a provider is called: a corrupted task_id must never turn
+    # into a delete of some other target.
+    if not isinstance(task_id, str) or not _TASK_ID_RE.fullmatch(task_id):
+        raise _state_invalid("task id is not ledger-owned")
+    if object_key != f"{_OBJECT_PREFIX}/{task_id}.zip":
+        raise _state_invalid("task object key is not ledger-owned")
+    for field in _RETENTION_METADATA:
+        if _row_field(row, field) is None:
+            raise _state_invalid(
+                "task predates destination retention metadata and cannot "
+                "be deleted safely")
+    try:
+        persisted_identity = json.loads(row["provider_identity"])
+    except ValueError:
+        raise _state_invalid("persisted provider identity is unreadable") from None
+    if persisted_identity != identity:
+        raise errors.DeliveryError(
+            errors.IDEMPOTENCY_CONFLICT,
+            "config does not match the persisted destination of this task")
+
+    link_status, link_http_status = "link-unknown", None
+    handoff_path = state_real / HANDOFFS_DIR / f"{task_id}.json"
+    _reject_path_symlinks(handoff_path, "handoff file")
+    _reject_symlink_file(handoff_path, "handoff file")
+    if os.path.lexists(handoff_path):
+        recorded_url_sha = row["url_sha256"]
+        if recorded_url_sha is None:
+            raise _state_invalid("handoff file exists without a bound URL digest")
+        handoff = _load_handoff(
+            handoff_path, _handoff_expectation(row, task_id, object_key),
+            recorded_url_sha)
+        link_status, link_http_status = _probe_old_link(provider, handoff["url"])
+    elif row["handoff_path"] is not None:
+        # A handoff that was published once and later disappeared means the
+        # private state was tampered with; only a task that never reached
+        # handoff publication may legitimately lack the file.
+        raise _state_invalid("previously persisted handoff file is missing")
+
+    result = {
+        "schema_version": SCHEMA_VERSION,
+        "status": STATE_OBJECT_DELETED,
+        "key": key,
+        "task_id": task_id,
+        "object_key": object_key,
+        "link_status": link_status,
+        "link_http_status": link_http_status,
+    }
+    if row["state"] == STATE_OBJECT_DELETED:
+        # object-deleted is terminal: an explicit revoke may re-probe the old
+        # link above, but never re-enters revoking or deletes a reappeared
+        # object.
+        return result
+    try:
+        _set_state(conn, key, STATE_REVOKING)
+        if _provider("stat", provider.stat, object_key) is not None:
+            _provider("delete", provider.delete, object_key)
+        if _provider("stat", provider.stat, object_key) is not None:
+            raise errors.DeliveryError(
+                errors.REMOTE_DELETE_UNCONFIRMED,
+                "object still present after deletion (outcome unknown)")
+        _set_state(conn, key, STATE_OBJECT_DELETED)
+    except errors.DeliveryError as exc:
+        _record_error(conn, key, exc.code)
+        raise
+    return result
+
+
+def revoke(state_dir, config_path, key, *, store=None) -> dict:
+    """Revoke a ledger-owned Qiniu object using the caller's config.
+
+    Works without the original inputs or locally stored secrets; local
+    bundle, password and handoff are retained byte-for-byte.
+    """
+    key = ledger._validate_key(key)
+    state_real = _existing_state_dir(state_dir)
+    config_store, identity = _load_config_identity(config_path)
+    provider = store if store is not None else config_store
+    locks_dir = state_real / LOCKS_DIR
+    _ensure_private_subdir(locks_dir)
+    with ledger._key_lock(locks_dir, key):
+        conn = _open_db(state_real)
+        try:
+            return _revoke_row(conn, state_real, provider, identity, key)
+        finally:
+            conn.close()
+
+
+def _scan_rows(state_real: Path) -> list:
+    db_path = state_real / DB_NAME
+    try:
+        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True,
+                               timeout=ledger.LOCK_TIMEOUT_SECONDS)
+        conn.row_factory = sqlite3.Row
+    except sqlite3.Error as exc:
+        raise ledger._sqlite_error(exc) from None
+    try:
+        try:
+            return conn.execute(
+                "SELECT * FROM tasks ORDER BY created_at, key").fetchall()
+        except sqlite3.OperationalError as exc:
+            if "no such table" in str(exc).lower():
+                raise errors.DeliveryError(
+                    errors.TASK_NOT_FOUND, "no remote tasks found") from None
+            raise ledger._sqlite_error(exc) from None
+        except sqlite3.Error as exc:
+            raise ledger._sqlite_error(exc) from None
+    finally:
+        conn.close()
+
+
+def _cleanup_reason(row, now: int) -> str | None:
+    """Return the skip reason, or None when the task is due and revocable."""
+    if any(_row_field(row, field) is None for field in _RETENTION_METADATA):
+        return "metadata-missing"
+    if row["state"] == STATE_OBJECT_DELETED:
+        return "already-revoked"
+    if now < row["retention_expires_at"]:
+        return "not-due"
+    return None
+
+
+def cleanup(state_dir, config_path=None, *, dry_run=True, store=None,
+            now=None) -> dict:
+    """Preview (default) or execute retention cleanup of ledger-owned objects.
+
+    A task is due when ``now`` reaches its immutable retention deadline; link
+    expiry alone never triggers deletion. Every task is handled independently.
+    """
+    if now is None:
+        now = int(time.time())
+    elif not _is_int(now) or now < 0:
+        raise _invalid("now must be a non-negative integer")
+    state_real = _existing_state_dir(state_dir)
+    rows = _scan_rows(state_real)
+
+    if dry_run:
+        items = []
+        for row in rows:
+            reason = _cleanup_reason(row, now) or "due"
+            items.append({
+                "key": row["key"],
+                "task_id": row["task_id"],
+                "object_key": row["object_key"],
+                "eligible": reason == "due",
+                "reason": reason,
+            })
+        return {"schema_version": SCHEMA_VERSION,
+                "status": "cleanup-dry-run", "items": items}
+
+    if config_path is None:
+        raise _invalid("executing cleanup requires the delivery config file")
+    config_store, identity = _load_config_identity(config_path)
+    provider = store if store is not None else config_store
+    locks_dir = state_real / LOCKS_DIR
+    _ensure_private_subdir(locks_dir)
+
+    items = []
+    failures = 0
+    for row in rows:
+        key = row["key"]
+        item = {"key": key, "task_id": row["task_id"],
+                "object_key": row["object_key"]}
+        reason = _cleanup_reason(row, now)
+        if reason is not None:
+            items.append({**item, "eligible": False, "reason": reason})
+            continue
+        try:
+            persisted_identity = json.loads(row["provider_identity"])
+        except ValueError:
+            persisted_identity = None
+        if persisted_identity is not None and persisted_identity != identity:
+            items.append({**item, "eligible": False,
+                          "reason": "identity-mismatch"})
+            continue
+        try:
+            with ledger._key_lock(locks_dir, key):
+                conn = _open_db(state_real)
+                try:
+                    result = _revoke_row(conn, state_real, provider,
+                                         identity, key)
+                finally:
+                    conn.close()
+        except errors.DeliveryError as exc:
+            failures += 1
+            items.append({**item, "eligible": True, "reason": "due",
+                          "status": "failed", "error": exc.code})
+            continue
+        items.append({**item, "eligible": True, "reason": "due",
+                      "status": result["status"],
+                      "link_status": result["link_status"],
+                      "link_http_status": result["link_http_status"]})
+    status = "cleanup-partial" if failures else "cleanup-complete"
+    return {"schema_version": SCHEMA_VERSION, "status": status, "items": items}
