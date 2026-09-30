@@ -12,9 +12,11 @@ dependencies = []
 [project.optional-dependencies]
 archive = ["pyzipper==0.4.0"]
 qiniu = ["qiniu==7.18.0"]
+mcp = ["mcp==2.2.0"]
 
 [project.scripts]
 file-delivery = "file_delivery.cli:main"
+file-delivery-mcp = "file_delivery.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
