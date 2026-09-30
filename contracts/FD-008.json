@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-008",
+  "status": "planned-not-implemented",
+  "objective": "Independent save, cloud search/list, local download and existing-cloud-file delivery, composable without redundant uploads.",
+  "requirements": [
+    "Save local files independently; persist task/object identity and searchable original filenames/manifests. Do not send email implicitly.",
+    "List actual Qiniu objects with bounded pagination and prefix/search filters, correlate owned objects with original-file metadata, distinguish unmanaged objects and history from live provider presence. Show enough name, size, timestamp and task/object identifiers to resolve ambiguity before sending.",
+    "Download a selected owned archive to an explicit local destination, bounded timeout, streaming SHA256/size verification, private temporary file, atomic publish, no overwrite without explicit request. Encrypted ZIP is the default; extraction is separately requested and uses safe path validation.",
+    "Generate a fresh signed handoff for an existing selected owned object without requiring original source paths, repacking or upload; preserve archive/password/object identity, verify live content and record link versions for safe email idempotency.",
+    "Email/share accept either local files or an existing cloud selection. Upload only local inputs; reuse existing selected objects. Send mobile HTML notification through the existing SMTP core; unknown sends never retry implicitly.",
+    "CLI and MCP share deterministic core operations; Skill routes save/list/download/share/email and their combinations. Missing decisions are limited to file selection, output path, recipient and configuration. No raw credentials in prompts or logs.",
+    "Host- and model-neutral Skill: Codex/ChatGPT, Hermes, Claude and other agents use the same CLI/MCP contracts; host discovery/trust/config adapters are separate, no specific inference model or provider is required."
+  ],
+  "scope_policy": "New requirement after FD-007 planning. Freeze implementation scope and deterministic acceptance for each vertical slice before implementation; do not rewrite FD-005/006/007 historical evidence.",
+  "slices": ["Cloud metadata/list and selection", "Verified local download", "Versioned link renewal and existing-object mail/share"],
+  "verification": "Synthetic provider tests first; actual listing/download require a corresponding requested operation. No upload, download or mail has occurred for this planning task.",
+  "execution": {"owner": "Codex", "worker_calls": 0, "usage": null, "monetary_cost": null}
+}
