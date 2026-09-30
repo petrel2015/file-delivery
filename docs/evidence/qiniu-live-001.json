@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-004-live-001",
+  "status": "blocked_configuration",
+  "baseline_sha": "8c3655274c1b4d73ef3971cbb63febdbadc7e091",
+  "started_at": "2026-09-30T12:51:02.391628+00:00",
+  "scope": "One synthetic 1024-byte encrypted delivery to user-configured private Qiniu bucket; no email or explicit deletion.",
+  "config_mode": "0600",
+  "bucket": "file-delivery",
+  "region": "z1",
+  "download_domain": "https://files.fluffyeti.com",
+  "delivery_attempts": 1,
+  "upload_request_reached": false,
+  "failure_stage": "bucket privacy query before stat/upload",
+  "error_code": "REMOTE_AUTH",
+  "credential_diagnostic": {
+    "ak_equals_sk": true,
+    "both_signing_variants_http401": true,
+    "provider_error_class": "bad token"
+  },
+  "domain_diagnostic": {
+    "tls_verified": false,
+    "error_kind": "tls_handshake_eof"
+  },
+  "domain_root_cause": "unconfirmed; HTTPS handshake ended before certificate validation completed",
+  "bundle_created_and_verified_locally": true,
+  "archive_size": 243,
+  "raw_signed_links_published": false,
+  "live_download_verified": false,
+  "expiry_verified": false,
+  "deletion_verified": false,
+  "smtp_sent": false,
+  "money_cost": null,
+  "automatic_upload_retries": 0,
+  "private_evidence_sha256": {
+    "plan.json": "c2dbf021c8af22c410d567cba50cc828af8fc0b76b976aa3282c2e7261a14d4d",
+    "result.json": "b91eaee655ef6b03c0577bd3d20862d4844232e5251e69d14c3ac842aaba1d63",
+    "auth-diagnostic.json": "6483bd2ac1e9b109ca88881c0ac082ede393e56c3c22fe2c3cf2247d35a5c344",
+    "domain-preflight.json": "a01866a1be501832452851b0fbad00ddc7f2a94bec4f12230efa8c25371432e7",
+    "tls-requests-diagnostic.json": "9e302ea3f04b5500c8cd92d5520d6ba89b0132a11644092fc0a024e737faaf40"
+  },
+  "recovery": "Original task and ZIP/password preserved. Persisted uploading is an intent state, not proof that an upload occurred. Resume only after credential correction and existing task inspection."
+}
