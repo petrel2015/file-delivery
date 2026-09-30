@@ -1,0 +1,18 @@
+{
+  "change": "Safe REMOTE_UNKNOWN transport diagnostics",
+  "date": "2026-09-30",
+  "review_type": "Codex self-check, not independent Worker review",
+  "cost": null,
+  "validation": [
+    {"command": "unittest discover -s tests -q (worktree)", "tests": 178, "exit_code": 0},
+    {"command": "unittest discover against isolated staged tree with staged src on PYTHONPATH", "tests": 171, "exit_code": 0},
+    {"command": "unittest discover -s tests/fd004a -q", "tests": 7, "exit_code": 0},
+    {"command": "unittest discover -s tests/fd004a_review -q", "tests": 7, "exit_code": 0},
+    {"command": "unittest discover -s tests/fd004b -q", "tests": 6, "exit_code": 0}
+  ],
+  "development_failure": "Adding monotonic timing consumed the existing download-deadline mock sequence; elapsed timing moved to perf_counter, then all checks passed.",
+  "live_upload_executed": false,
+  "email_sent": false,
+  "timeout_changed": false,
+  "limitations": ["Previously discarded exception details cannot be recovered.", "Raw exception strings intentionally excluded; unknown exception types use controlled unknown classification.", "Ledger last_error remains the stable main code."]
+}

@@ -206,20 +206,55 @@ class QiniuStore:
     def _request(self, method: str, url: str, **kwargs):
         if not url.startswith("https://"):
             raise errors.DeliveryError(errors.REMOTE_ERROR, "refusing non-HTTPS provider URL")
+        started = time.perf_counter()
         try:
             response = self._session.request(
                 method, url, allow_redirects=False, verify=True,
                 timeout=self._timeout, **kwargs)
-        except Exception:
-            raise errors.DeliveryError(
-                errors.REMOTE_UNKNOWN, "provider request failed (outcome unknown)") from None
+        except Exception as exc:
+            raise self._network_error(exc, self._request_stage(url), started) from None
         return response
+
+    def _request_stage(self, url):
+        parts = urlsplit(url)
+        if parts.hostname == f"up-{self._region}.qiniup.com":
+            return "upload"
+        if parts.hostname == UC_HOST:
+            return "bucket_check"
+        if parts.hostname == f"rs-{self._region}.qiniuapi.com":
+            action = parts.path.split("/")[1]
+            return action if action in {"stat", "list", "delete"} else "request"
+        return "download"
+
+    def _network_error(self, exc, stage, started):
+        from requests import exceptions as network
+        categories = (
+            (network.ConnectTimeout, "connect_timeout", "ConnectTimeout"),
+            (network.ReadTimeout, "read_timeout", "ReadTimeout"),
+            (network.Timeout, "timeout", "Timeout"),
+            (network.SSLError, "tls_error", "SSLError"),
+            (network.ChunkedEncodingError, "stream_interrupted", "ChunkedEncodingError"),
+            (network.ContentDecodingError, "stream_interrupted", "ContentDecodingError"),
+            (network.ConnectionError, "connection_error", "ConnectionError"),
+        )
+        reason, kind = "transport_error", "unknown"
+        for cls, category, name in categories:
+            if isinstance(exc, cls):
+                reason, kind = category, name
+                break
+        elapsed = round(max(0, time.perf_counter() - started), 3)
+        diagnostic = {"reason": reason, "exception_type": kind, "stage": stage,
+                      "elapsed_seconds": elapsed, "timeout_seconds": self._timeout}
+        message = (f"provider {stage} failed: {reason} ({kind}); "
+                   f"elapsed={elapsed}s, timeout={self._timeout}s; outcome unknown")
+        return errors.DeliveryError(errors.REMOTE_UNKNOWN, message, diagnostics=diagnostic)
 
     def _map_status(self, status: int, action: str) -> errors.DeliveryError:
         if status in (401, 403):
             return errors.DeliveryError(errors.REMOTE_AUTH, f"{action} rejected by provider auth (HTTP {status})")
         if 500 <= status < 600:
-            return errors.DeliveryError(errors.REMOTE_UNKNOWN, f"{action} failed (HTTP {status}, outcome unknown)")
+            return errors.DeliveryError(errors.REMOTE_UNKNOWN, f"{action} failed (HTTP {status}, outcome unknown)",
+                                        diagnostics={"reason": "http_server_error", "http_status": status})
         return errors.DeliveryError(errors.REMOTE_ERROR, f"{action} failed with HTTP {status}")
 
     def _management_headers(self, url: str) -> dict:
@@ -396,6 +431,7 @@ class QiniuStore:
         signed = self.signed_url(key, min(self._timeout + 30, MAX_LINK_TTL))
         response = self._request('GET', signed['url'], stream=True)
         digest, size = hashlib.sha256(), 0
+        started = time.perf_counter()
         deadline = time.monotonic() + self._timeout
         try:
             if response.status_code != 200:
@@ -413,10 +449,11 @@ class QiniuStore:
                     handle.write(chunk)
             except errors.DeliveryError:
                 raise
-            except OSError:
-                raise errors.DeliveryError(errors.IO_ERROR, 'download stream or output failed') from None
-            except Exception:
-                raise errors.DeliveryError(errors.REMOTE_UNKNOWN, 'download stream interrupted') from None
+            except Exception as exc:
+                from requests.exceptions import RequestException
+                if isinstance(exc, OSError) and not isinstance(exc, RequestException):
+                    raise errors.DeliveryError(errors.IO_ERROR, 'download output failed') from None
+                raise self._network_error(exc, 'download_stream', started) from None
         finally:
             response.close()
         if size != expected_size or digest.hexdigest() != expected_sha256:
@@ -439,6 +476,7 @@ class QiniuStore:
             anonymous.close()
         signed = self.signed_url(key)
         response = self._request("GET", signed["url"], stream=True)
+        started = time.perf_counter()
         try:
             if response.status_code != 200:
                 raise self._map_status(response.status_code, "signed download")
@@ -454,9 +492,8 @@ class QiniuStore:
                     if size > expected_size:
                         exceeded = True
                         break
-            except Exception:
-                raise errors.DeliveryError(
-                    errors.REMOTE_UNKNOWN, "download stream was interrupted (outcome unknown)") from None
+            except Exception as exc:
+                raise self._network_error(exc, "download_stream", started) from None
         finally:
             response.close()
         if exceeded or size != expected_size or digest.hexdigest() != expected_sha256:

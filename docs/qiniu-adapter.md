@@ -52,3 +52,10 @@ store = QiniuStore.from_file("/absolute/private/qiniu.json")
 请求不自动重试，禁用重定向并设置有限超时。网络或下载流中断返回脱敏 `REMOTE_UNKNOWN`，调用者不能据此断定远端操作未发生；应先核对对象再决定后续动作。其他关键错误包括 `BUCKET_NOT_PRIVATE`、`REMOTE_AUTH`、`REMOTE_CONFLICT`、`REMOTE_INTEGRITY`、`REMOTE_DELETE_UNCONFIRMED` 和 `DEPENDENCY_MISSING`。
 
 当前使用表单上传，文件会读入内存；尚未验证大文件性能或断点续传。真实域名、实际链接过期、上传下载费用、删除后的旧链接访问都需要后续真实联调，离线测试不替代这些证据。
+
+
+### 网络失败诊断
+
+`REMOTE_UNKNOWN` 保留远端结果不确定的语义，不触发自动重传。CLI 错误 JSON 和 MCP 错误新增可选 `diagnostics`：`reason`（connect_timeout/read_timeout/timeout/connection_error/tls_error/stream_interrupted/transport_error/http_server_error）、`exception_type`、`stage`、`elapsed_seconds`、`timeout_seconds`；HTTP 5xx 包含 `http_status`。任务层保留这些受控字段，账本 `last_error` 仍只保存主错误码。
+
+例如上传读取超时可输出 `reason=read_timeout, exception_type=ReadTimeout, stage=upload, elapsed_seconds=31.125, timeout_seconds=30`。一般 Timeout 不推测发送还是读取阶段；未知异常类型输出 unknown。报错只输出受控类型与分类，不输出原始异常字符串、请求 URL、请求/响应内容、凭据或签名。旧失败记录无法追溯恢复已丢失的异常信息。此次改动不调整超时或执行真实恢复。

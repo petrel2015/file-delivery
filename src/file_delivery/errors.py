@@ -45,7 +45,34 @@ SMTP_UNKNOWN = "SMTP_UNKNOWN"
 class DeliveryError(Exception):
     """Raised with a stable machine-readable code and a human message."""
 
-    def __init__(self, code: str, message: str) -> None:
+    def __init__(self, code: str, message: str, *, diagnostics=None) -> None:
         super().__init__(message)
         self.code = code
         self.message = message
+        self.diagnostics = safe_diagnostics(diagnostics)
+
+
+# Only controlled vocabulary crosses provider/CLI/MCP boundaries. Never copy
+# exception strings, request objects, response bodies or arbitrary class names.
+_DIAGNOSTIC_VALUES = {
+    "reason": {"connect_timeout", "read_timeout", "timeout", "connection_error",
+               "tls_error", "stream_interrupted", "transport_error", "http_server_error"},
+    "stage": {"upload", "bucket_check", "stat", "list", "delete", "download", "download_stream", "request"},
+    "exception_type": {"ConnectTimeout", "ReadTimeout", "Timeout", "ConnectionError",
+                       "SSLError", "ChunkedEncodingError", "ContentDecodingError", "unknown"},
+}
+
+
+def safe_diagnostics(value):
+    if not isinstance(value, dict):
+        return {}
+    result = {}
+    for key, allowed in _DIAGNOSTIC_VALUES.items():
+        item = value.get(key)
+        if isinstance(item, str) and item in allowed:
+            result[key] = item
+    for key in ("elapsed_seconds", "timeout_seconds", "http_status"):
+        item = value.get(key)
+        if type(item) in (int, float) and 0 <= item <= 1_000_000:
+            result[key] = item
+    return result

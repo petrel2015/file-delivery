@@ -19,6 +19,8 @@ def create_server():
         except errors.DeliveryError as exc:
             code = exc.code if exc.code in known_codes else 'INTERNAL_ERROR'
             value = {'error': {'code': code, 'message': 'Delivery operation failed; inspect the error code and existing task status.'}}
+            if exc.diagnostics:
+                value['error']['diagnostics'] = errors.safe_diagnostics(exc.diagnostics)
             failed = True
         except Exception:
             value = {'error': {'code': 'INTERNAL_ERROR', 'message': 'Delivery operation failed.'}}

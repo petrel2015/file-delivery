@@ -185,7 +185,8 @@ def main(argv: list[str] | None = None) -> int:
     except errors.DeliveryError as exc:
         print(json.dumps({"schema_version": planning.SCHEMA_VERSION,
                           "status": "error",
-                          "error": {"code": exc.code, "message": exc.message}}))
+                          "error": {"code": exc.code, "message": exc.message,
+                                    **({"diagnostics": exc.diagnostics} if exc.diagnostics else {})}}))
         return 2
     except OSError as exc:
         print(json.dumps({"schema_version": planning.SCHEMA_VERSION,

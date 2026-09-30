@@ -122,7 +122,10 @@ def _provider(op: str, func, *args, **kwargs):
         return func(*args, **kwargs)
     except errors.DeliveryError as exc:
         code = exc.code if exc.code in _KNOWN_CODES else errors.REMOTE_UNKNOWN
-        raise errors.DeliveryError(code, f"provider {op} failed") from None
+        diagnostic = errors.safe_diagnostics(exc.diagnostics)
+        detail = f"; diagnostics={json.dumps(diagnostic, sort_keys=True)}" if diagnostic else ""
+        raise errors.DeliveryError(code, f"provider {op} failed{detail}",
+                                   diagnostics=diagnostic) from None
     except OSError:
         raise errors.DeliveryError(errors.IO_ERROR, f"provider {op} io failure") from None
     except Exception:
