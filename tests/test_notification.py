@@ -103,7 +103,7 @@ class NotificationTests(unittest.TestCase):
         self.assertEqual(message.get_all("To"), ["Shop@example.test"])
         self.assertEqual(message.get_all("From"), ["sender@example.test"])
         self.assertEqual(message["Message-ID"], result["message_id"])
-        body = message.get_content()
+        body = message.get_body(preferencelist=("plain",)).get_content()
         handoff = json.loads(Path(self.remote["handoff_file"]).read_text())
         self.assertIn(handoff["url"], body)
         self.assertIn(str(self.remote["archive_size"]), body)

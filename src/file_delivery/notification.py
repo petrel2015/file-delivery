@@ -28,7 +28,7 @@ from email import policy
 from email.message import EmailMessage
 from pathlib import Path
 
-from file_delivery import archive, contacts, errors, ledger, remote
+from file_delivery import archive, contacts, email_template, errors, ledger, remote
 
 SCHEMA_VERSION = 1
 
@@ -408,12 +408,10 @@ def _build_message(message_id: str, notification_id: str, from_addr: str,
     message["To"] = to_addr
     message["Subject"] = f"[file-delivery] notification {notification_id}"
     message["Message-ID"] = message_id
-    message.set_content(
-        "Your file delivery is ready.\n\n"
-        f"Download URL: {handoff['url']}\n"
-        f"Archive password: {password}\n"
-        f"Archive size (bytes): {task['archive_size']}\n"
-        f"Link expires at (unix seconds): {task['expires_at']}\n")
+    plain, html = email_template.render(
+        handoff['url'], password, task['archive_size'], task['expires_at'])
+    message.set_content(plain)
+    message.add_alternative(html, subtype="html")
     return message
 
 

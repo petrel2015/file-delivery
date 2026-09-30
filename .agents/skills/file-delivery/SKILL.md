@@ -1,11 +1,26 @@
 ---
 name: file-delivery
-description: Encrypt and deliver selected local files through the file-delivery CLI or MCP, including private Qiniu links, one-recipient email, saved status and retention cleanup.
+description: Save local files to private cloud storage, share a download URL and archive password, or email a mobile-friendly HTML download notification. Route file-delivery requests through CLI or MCP and inspect existing delivery state before reusing cloud files.
 ---
 
 # File delivery
 
 Use the installed `file-delivery` CLI or configured `file-delivery` MCP server. Both share the same Python core and private SQLite ledgers. Read [host integration](references/host-integration.md) for installation, schemas and host diagnostics. CLI `--help` is authoritative for options.
+
+This Skill is host- and model-neutral. Codex/ChatGPT, Hermes, Claude or another agent can follow the same operations through its CLI runner or MCP client and authorized private-file reader. Do not require a particular host's mention syntax, SDK, inference provider or skill directory for business operations. Host-specific installation is an adapter concern. If no private-file reader is available, report that presentation limitation instead of implementing another delivery core.
+
+## Route the user's intent
+
+Select independent operations or compose them according to the request. Uploading can be the requested outcome, or one step in a delivery. An existing cloud file must not be uploaded again just to send or download it.
+
+- **Save/upload**: “把 xx 文件通过 file-delivery 保存.” Use `deliver_qiniu` for encrypted cloud storage, report the saved task ID/key, file count/size and retention. Do not send mail or unnecessarily display the archive password. The current core also validates a temporary download link during upload; this does not turn the user's request into a share.
+- **Email**: “把 xx 文件通过 file-delivery 发送邮件给 reader@example.com.” Resolve the selected files and the one recipient. Before uploading a new delivery, confirm an existing SMTP config path and validate it with `notification.load_smtp_config` through the installed Python runtime; resolve the recipient with `contacts.resolve`, including aliases when configured. Then `deliver_qiniu` handles plan/encrypt/verify/upload/link verification; call `send_email` with that delivery key only after `link-verified`. Core SMTP builds a fixed mobile-friendly HTML notification plus plain-text fallback containing a download button, fallback URL, archive password, ZIP size and expiry. Report the recipient and actual SMTP status. Do not stop after uploading and ask the user to separately request the already-requested email.
+- **Share**: “把 xx 文件通过 file-delivery 分享.” Perform `deliver_qiniu` and present the protected handoff as a copyable download URL, archive password, size and expiry. Do not send email without a recipient/email request. The password unlocks the AES ZIP after download; there is currently no hosted extraction-code page. Do not describe this as a Baidu Netdisk portal or claim browser password enforcement.
+- **Plan/status/revoke/cleanup**: Perform only the requested operation; do not turn a read-only request into a delivery.
+
+For **existing cloud files**, inspect the original task with `status_qiniu`; when its key is known and its verified link is still valid, reuse that handoff for sharing or `send_email` rather than invoking a new upload. If the user identifies a file by an ambiguous name, resolve and confirm the intended file/version before sending. Current CLI/MCP has no cloud `list`, download-to-local or existing-object link-renewal command. Do not invent those commands or substitute a local-path search for live bucket listing. Report this gap when the requested operation depends on it; a saved status only reports history. See the planned independent-operation contract in the project for these additions.
+
+Use existing configured defaults where available; ask only for missing input/config/recipient. For new deliveries use defaults of a 7-day link and 30-day object retention unless the user specifies otherwise. Keep delivery and notification keys stable for the same operation; an explicitly new share is a new operation. Never reuse an unrelated old task just because its input pathname matches.
 
 ## Carry out a requested delivery
 

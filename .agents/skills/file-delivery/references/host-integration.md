@@ -1,5 +1,11 @@
 # Host integration and configuration
 
+## Host-neutral entry points
+
+The business core and this Skill have no ChatGPT/Codex, Hermes, Claude or model dependency. Use the installed CLI with any authorized command runner, or connect any compatible MCP stdio client to the same installed `file-delivery-mcp` command. Private file reads are required to present the protected URL/password to the intended recipient; do not put credentials in host prompts or MCP environment variables.
+
+Install this Skill folder in the host's supported discovery location or provide its `SKILL.md` as workflow instructions. Skill directory layout, trust controls and invocation syntax differ by host; consult that host's actual configuration. Installing in Codex is one adapter, not a requirement for the core. Keep one canonical project Skill and copy it to selected host locations after validation. The Hermes commands below are a qualified host example, not a universal prerequisite or commands for Claude/Codex.
+
 Python 3.11+; from the business project install into its dedicated environment:
 
 ```sh

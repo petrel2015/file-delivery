@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-007",
+  "date": "2026-09-30",
+  "base_commit": "65322f5",
+  "status": "offline-qualified",
+  "changes": ["Deterministic multipart plain/HTML system notification", "Mobile fluid table layout, escaped URL/password, download button and timezone-explicit expiry", "Skill save/share/email intent routing and host-neutral CLI/MCP entry points"],
+  "scope_extension": "User clarified standalone cloud operations and host neutrality during execution. Host-integration reference updated accordingly; unimplemented cloud operations preserved separately in FD-008, not retroactive FD-007 failures.",
+  "checks": [
+    {"command": ".venv/bin/python -B -m unittest discover -s tests -p test_*.py", "tests": 160, "exit_code": 0},
+    {"command": ".venv/bin/python -B -m unittest discover -s tests/fd005_direct", "tests": 8, "exit_code": 0},
+    {"suite": "tests/fd005 frozen controller", "tests": 26, "passed": 25, "exit_code": 1, "reason": "One frozen top-level get_content() assumes text/plain; HTML multipart requirement supersedes this assumption. Original test untouched; FD-007 test replays original headers, payload, database/response privacy, file modes plus duplicate-send assertions against plain MIME part."},
+    {"suite": "tests/fd006", "tests": 7, "exit_code": 0, "environment": "Business interpreter with existing test-only PyYAML site-packages appended; initial run failed missing yaml, no core dependency added."},
+    {"check": "skill-creator quick_validate", "result": "valid", "environment": "Existing interpreter with PyYAML; system/business Python missing yaml."},
+    {"check": "Browser desktop and narrow viewport synthetic HTML preview", "result": "visually checked; button, password and fallback URL wrap", "requested_mobile_width": 320, "observed_document_client_width": 266, "observed_document_scroll_width": 266, "limitation": "Browser rendering only; actual email-client/device rendering and SMTP acceptance unverified."},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "external_uploads": 0,
+  "external_emails": 0,
+  "worker_calls": 0,
+  "self_review_rounds": 1,
+  "independent_review_rounds": 0,
+  "usage": null,
+  "monetary_cost": null,
+  "pending": ["Actual SMTP configuration and explicitly selected test recipient", "FD-008 live cloud list/search, local download, and existing-object link renewal", "Claude host integration not tested; Hermes deterministic integration remains historical evidence, not a new model-driven run"]
+}
