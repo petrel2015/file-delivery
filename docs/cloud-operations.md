@@ -23,3 +23,5 @@ file-delivery send-email --state-dir /private/state --delivery-key delivery-001 
 Claude Code 的项目 Skill 放在 `.claude/skills/file-delivery`，MCP 可通过 `claude mcp add --transport stdio --scope project file-delivery -- /absolute/project/.venv/bin/file-delivery-mcp` 注册；Claude Desktop 使用单独配置，示例见 [claude-mcp.json](examples/claude-mcp.json)。配置不包含密钥；本机没有发现 Claude 可执行文件或应用，当前仅验证 MCP 客户端协议，不能声称 Claude 接入成功。参考 [Claude 官方 MCP 文档](https://code.claude.com/docs/en/mcp)及 [Skills 文档](https://code.claude.com/docs/en/skills)。
 
 真实邮件仍需要本机 SMTP 配置路径和用户指定测试收件邮箱。无需把密码发到聊天中。
+
+2026-09-30 用户选择 Hermes 完成宿主验收：当前安装的 Python 3.14.7、zai / glm-5.3-flash 实际预加载本项目 Skill，通过 MCP 查询已有七牛测试文件、下载校验ZIP、生成600秒链接版本并查询状态，5个业务工具调用均成功。另行核对 AES 内容、账本及原归档/密码/原handoff未变；未上传或发送邮件。证据见 [Hermes模型驱动验收](evidence/fd008-hermes-model.json)。应从本机当前 `hermes` 入口运行；旧源码虚拟环境可能与安装版依赖产生Python ABI混用，不能据旧路径猜测当前运行环境。

@@ -1,0 +1,112 @@
+{
+  "work_id": "FD-008-Hermes-model-verification",
+  "date": "2026-09-30",
+  "status": "accepted-existing-cloud-object-workflow",
+  "baseline_sha": "13fdd10b8075c314216921036a5af57375b04c67",
+  "authorization": "User selected local Hermes to replace unavailable Claude verification.",
+  "bounds": {
+    "startup_attempts": 2,
+    "model_driven_invocations": 1,
+    "max_iterations": 12,
+    "wall_timeout_seconds": 480,
+    "fallback_disabled": true,
+    "allowed_tool_suffixes": [
+      "list_qiniu",
+      "download_qiniu",
+      "renew_link",
+      "status_link",
+      "status_qiniu"
+    ],
+    "tool_dispatch_scope_guard": true,
+    "os_sandbox": false
+  },
+  "startup_failure": {
+    "attempt": 1,
+    "exit_code": 1,
+    "reason": "Python 3.11 source venv activated installed Python 3.14 dependency paths; native pydantic import failed before client initialization.",
+    "provider_usage": null,
+    "no_business_tools_called": true,
+    "resolution": "Use current installed native Python 3.14.7 runtime; no package/global configuration changes."
+  },
+  "execution": {
+    "invocations": 1,
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 121.29
+  },
+  "host": {
+    "runtime_python": "3.14.7",
+    "model": "glm-5.3-flash",
+    "provider": "zai",
+    "skill_preloaded": true,
+    "project_skill_body_loaded": true,
+    "skill_sha256": "42f7912d44162eb1171b83b8b9074efb227f0133db72f66ea91ea20e31a15937"
+  },
+  "acceptance": {
+    "passed": true,
+    "tool_calls": 5,
+    "download_sha256": "be5458d16a943f007b97a4bc39b04e9ba6c1c7d729017f8a1134d91921a92fd3",
+    "download_bytes": 243,
+    "encrypted_archive_content_verified": true,
+    "original_files": 1,
+    "original_bytes": 1024,
+    "archive_password_original_handoff_unchanged": true,
+    "version_ledger_matches_handoff": true,
+    "private_permissions_verified": true,
+    "uploads": 0,
+    "emails": 0,
+    "task_id": "fd-e4bf6cd53db7def563d158a3dfccbe0c",
+    "delivery_key": "qiniu-live-001",
+    "link_key": "hermes-fd008-001-link"
+  },
+  "main_usage": {
+    "input_tokens": 12429,
+    "output_tokens": 2957,
+    "cache_read_tokens": 72704,
+    "cache_write_tokens": 0,
+    "reasoning_tokens": 1497,
+    "total_tokens": 88090,
+    "api_calls": 8,
+    "completed": true,
+    "turn_exit_reason": "text_response(finish_reason=stop)"
+  },
+  "auxiliary_usage": {
+    "task": "title_generation",
+    "api_calls": 1,
+    "input_tokens": 506,
+    "output_tokens": 19,
+    "total_tokens": 525,
+    "model": null,
+    "provider": null
+  },
+  "observed_total_tokens": 88615,
+  "observed_api_calls": 9,
+  "cost_status": "unknown",
+  "actual_cost_usd": null,
+  "estimated_cost_usd": null,
+  "cost_note": "Hermes emitted numeric zero with cost_status=unknown/cost_source=none; normalized to null, not a free-cost claim.",
+  "codex_direct_self_review_count": 1,
+  "independent_worker_review_count": 0,
+  "private_artifact_sha256": {
+    "stdout.txt": "a919614b70cab2a4b8c0080e9a9aebc6733ff9bc53ddb0b7c60b54b3a368c2c5",
+    "usage.json": "3bea5f6ef659d9f379d9d4b8569e3eefada9fe87bc33dd57fa0c175da9b6e6a7",
+    "tool-audit.jsonl": "924c791f276e6f7c74347f1285b9b0aae578a41ce7c12e4c7bf4337aa844682f",
+    "downloaded.zip": "be5458d16a943f007b97a4bc39b04e9ba6c1c7d729017f8a1134d91921a92fd3",
+    "prompt.txt": "6de1590e88184448350fc92286b7cd6b5dee66b7bd9d13b10766a77f55cd5ec3",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification.json": "4ba759d6abe53b21f198b5683b6263df8838a5d0f8c6989882a62d1b8efba4a9",
+    "invoke.py": "da2ce1b3cdf20751d7731af5c877b1bb1405093ef91d5e9d3b8cdafc64f8e5a2",
+    "verify.py": "05d86df6bca35937e78d8cd5479d1ee00c6081ec65fb2fdd3ff41dea68120e22",
+    "preflight.json": "1abe5f70c103cb901bfd7bfe480a57f6f1d61084573bced80092dee770aa40a8",
+    "supervise.py": "efff30a49df1e845305862ad633dc95339ee0de5ca6636f5303e52dd199bd8cd",
+    "execution.json": "66e2530691a74bb5a7092d19cf895996bc9fef88421481af42ab79581eff327b",
+    "skill-check.json": "5a2396f32ca05fd290fa05359a63f95fcd0ef37983d11c3694750243f41d1e6a"
+  },
+  "limits": [
+    "Specific existing synthetic object only; no upload, email, delete or revoke.",
+    "No real SMTP acceptance/receipt/read proof.",
+    "No Claude host proof.",
+    "Auxiliary title model/provider not identified by usage report.",
+    "No failure-diagnosis model trial in this run."
+  ]
+}

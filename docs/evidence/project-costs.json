@@ -103,5 +103,18 @@
   "money_cost": null,
   "codex_usage": null,
   "scope": "Historical Worker submissions through FD005, including failures. User switched to direct Codex completion on 2026-09-30; no new Worker calls after takeover. Direct self-review is separate from independent Worker reviews. Unknown usage and money remain unknown.",
-  "codex_direct_self_review_count": 3
+  "codex_direct_self_review_count": 3,
+  "host_model_runs": [
+    {
+      "work_id": "FD-008-Hermes-model-verification",
+      "evidence": "fd008-hermes-model.json",
+      "main_api_calls": 8,
+      "auxiliary_api_calls": 1,
+      "observed_provider_tokens": 88615,
+      "money_cost": null,
+      "startup_failed_usage": null,
+      "codex_direct_self_review_count": 1,
+      "historical_worker_totals_unchanged": true
+    }
+  ]
 }
