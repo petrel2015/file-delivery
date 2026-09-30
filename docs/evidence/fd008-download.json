@@ -1,0 +1,12 @@
+{
+  "work_id": "FD-008-download",
+  "status": "verified",
+  "cloud_tests": 7,
+  "real_qiniu": {"status": "downloaded-verified", "archive_size": 243, "archive_sha256": "be5458d16a943f007b97a4bc39b04e9ba6c1c7d729017f8a1134d91921a92fd3", "uploads": 0},
+  "coverage": ["Original source removed, owned archive still downloadable", "Hash/size and owner-private output", "Corrupt stream cleanup", "No overwrite, symlink rejection, destination identity conflict"],
+  "format": "encrypted ZIP; extraction is not performed",
+  "self_review_rounds": 1,
+  "worker_calls": 0,
+  "usage": null,
+  "monetary_cost": null
+}

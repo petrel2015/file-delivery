@@ -48,6 +48,42 @@ class CloudTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, 'STATE_INVALID')
         self.f.store.list_objects.assert_not_called()
 
+    def test_download_reuses_archive_without_source_and_never_overwrites(self):
+        def stream(key, handle, sha, size):
+            handle.write(self.f.store.object_path(key).read_bytes())
+        self.f.store.download_to = mock.Mock(side_effect=stream)
+        self.f.input.unlink()
+        output = self.f.base / '下载.zip'
+        result = cloud.download(self.f.state, self.f.config, self.f.key, output, store=self.f.store)
+        self.assertEqual(result['status'], 'downloaded-verified')
+        self.assertEqual(hashlib.sha256(output.read_bytes()).hexdigest(), self.result['archive_sha256'])
+        self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+        with self.assertRaises(errors.DeliveryError) as caught:
+            cloud.download(self.f.state, self.f.config, self.f.key, output, store=self.f.store)
+        self.assertEqual(caught.exception.code, 'OUTPUT_EXISTS')
+        self.assertEqual(self.f.store.count('upload'), 1)
+        self.assertEqual(self.f.store.download_to.call_count, 1)
+
+    def test_download_bad_stream_leaves_no_partial_file(self):
+        self.f.store.download_to = mock.Mock(side_effect=lambda key, handle, sha, size: handle.write(b'bad'))
+        output = self.f.base / 'download.zip'
+        with self.assertRaises(errors.DeliveryError) as caught:
+            cloud.download(self.f.state, self.f.config, self.f.key, output, store=self.f.store)
+        self.assertEqual(caught.exception.code, 'REMOTE_INTEGRITY')
+        self.assertFalse(output.exists())
+        self.assertFalse(list(output.parent.glob('.file-delivery-download-*')))
+
+    def test_download_destination_symlink_and_wrong_config_rejected(self):
+        self.f.store.download_to = mock.Mock()
+        output = self.f.base / 'download.zip'; output.symlink_to(self.f.input)
+        with self.assertRaises(errors.DeliveryError):
+            cloud.download(self.f.state, self.f.config, self.f.key, output, store=self.f.store)
+        output.unlink(); self.f.values['bucket'] = 'wrong-bucket'; self.f.write_config()
+        with self.assertRaises(errors.DeliveryError) as caught:
+            cloud.download(self.f.state, self.f.config, self.f.key, output, store=self.f.store)
+        self.assertEqual(caught.exception.code, 'IDEMPOTENCY_CONFLICT')
+        self.f.store.download_to.assert_not_called()
+
 
 class ListProviderTests(unittest.TestCase):
     def test_provider_page_validation_and_url_encoding(self):

@@ -94,3 +94,46 @@ def list_files(config_path, state_dir=None, *, prefix='', marker='', limit=100, 
             items.append(item)
     return {'schema_version': 1, 'status': 'listed', 'source': 'live-qiniu',
             'items': items, 'next_marker': page['next_marker'], 'search_scope': 'current-page'}
+
+
+@_safe
+def download(state_dir, config_path, key, output_path, *, store=None):
+    state = _state(state_dir)
+    provider, identity = _provider(config_path, store)
+    output = ledger._strict_abs_path(output_path)
+    remote._reject_path_symlinks(output, 'download destination')
+    if os.path.lexists(output):
+        raise errors.DeliveryError(errors.OUTPUT_EXISTS, 'download destination already exists')
+    if not output.parent.is_dir():
+        raise errors.DeliveryError(errors.OUTPUT_NOT_ALLOWED, 'download parent directory must exist')
+    key = ledger._validate_key(key)
+    with ledger._key_lock(state / remote.LOCKS_DIR, key):
+        task, _ = _owned(state, key, identity)
+        remote._provider('bucket privacy', provider.ensure_private)
+        fd, temp_name = tempfile.mkstemp(prefix='.file-delivery-download-', dir=output.parent)
+        temp = Path(temp_name)
+        try:
+            with os.fdopen(fd, 'w+b') as handle:
+                remote._provider('download', provider.download_to, task['object_key'], handle,
+                    task['archive_sha256'], task['archive_size'])
+                handle.flush(); os.fsync(handle.fileno()); handle.seek(0)
+                digest = hashlib.sha256()
+                size = 0
+                for chunk in iter(lambda: handle.read(65536), b''):
+                    size += len(chunk); digest.update(chunk)
+                if size != task['archive_size'] or digest.hexdigest() != task['archive_sha256']:
+                    raise errors.DeliveryError(errors.REMOTE_INTEGRITY, 'downloaded archive failed verification')
+            remote._reject_path_symlinks(output, 'download destination')
+            try:
+                os.link(temp, output)  # Atomic publication that never replaces an existing file.
+            except FileExistsError:
+                raise errors.DeliveryError(errors.OUTPUT_EXISTS, 'download destination already exists') from None
+            directory_fd = os.open(output.parent, os.O_RDONLY)
+            try: os.fsync(directory_fd)
+            finally: os.close(directory_fd)
+        finally:
+            with contextlib.suppress(FileNotFoundError): temp.unlink()
+    return {'schema_version': 1, 'status': 'downloaded-verified', 'key': key,
+        'task_id': task['task_id'], 'output_path': str(output),
+        'archive_sha256': task['archive_sha256'], 'archive_size': task['archive_size'],
+        'password_file': task['password_file'], 'format': 'aes256-zip'}

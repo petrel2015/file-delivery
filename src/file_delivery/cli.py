@@ -23,6 +23,12 @@ def build_parser() -> argparse.ArgumentParser:
     list_parser.add_argument('--limit', type=int, default=100)
     list_parser.add_argument('--query', default='')
     list_parser.add_argument('--json', action='store_true')
+    download_parser = subparsers.add_parser('download-qiniu', aliases=['download'], help='download a selected owned encrypted archive')
+    download_parser.add_argument('--state-dir', required=True)
+    download_parser.add_argument('--config', required=True)
+    download_parser.add_argument('--key', required=True)
+    download_parser.add_argument('--output-path', required=True)
+    download_parser.add_argument('--json', action='store_true')
     plan_parser = subparsers.add_parser(
         "plan",
         help="plan a delivery manifest for the given paths",
@@ -135,6 +141,9 @@ def main(argv: list[str] | None = None) -> int:
             from file_delivery import cloud
             result = cloud.list_files(args.config, args.state_dir, prefix=args.prefix,
                 marker=args.marker, limit=args.limit, query=args.query)
+        elif args.command in ('download', 'download-qiniu'):
+            from file_delivery import cloud
+            result = cloud.download(args.state_dir, args.config, args.key, args.output_path)
         elif args.command == "plan":
             result = planning.plan(args.paths, args.root)
         elif args.command == "pack":

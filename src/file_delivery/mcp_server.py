@@ -99,12 +99,17 @@ def create_server():
         return call(cloud.list_files, config_path=config_path, state_dir=state_dir,
                     prefix=prefix, marker=marker, limit=limit, query=query)
 
+    def download_qiniu(state_dir: StrictStr, config_path: StrictStr, key: StrictStr,
+                       output_path: StrictStr) -> CallToolResult:
+        """Download a selected owned encrypted archive, verify SHA256, never overwrite an existing destination."""
+        return call(cloud.download, state_dir=state_dir, config_path=config_path, key=key, output_path=output_path)
+
     for fn in (plan, verify, status_local, status_qiniu, status_email):
         register(fn, readonly=True)
     register(list_qiniu, readonly=True, external=True)
     for fn in (pack, deliver_local):
         register(fn)
-    for fn in (deliver_qiniu, revoke_qiniu, cleanup_qiniu, send_email):
+    for fn in (deliver_qiniu, revoke_qiniu, cleanup_qiniu, send_email, download_qiniu):
         register(fn, external=True)
     return server
 

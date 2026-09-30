@@ -387,6 +387,42 @@ class QiniuStore:
         token = self._auth.token(base)
         return {"url": f"{base}&token={token}", "expires_at": deadline}
 
+    def download_to(self, key, handle, expected_sha256, expected_size) -> dict:
+        """Stream to a caller-owned private temporary file, with integrity bounds."""
+        self._validate_key(key)
+        if (not isinstance(expected_sha256, str) or not _SHA256_HEX.fullmatch(expected_sha256)
+                or not _is_int(expected_size) or expected_size < 0):
+            raise _invalid('invalid expected download identity')
+        signed = self.signed_url(key, min(self._timeout + 30, MAX_LINK_TTL))
+        response = self._request('GET', signed['url'], stream=True)
+        digest, size = hashlib.sha256(), 0
+        deadline = time.monotonic() + self._timeout
+        try:
+            if response.status_code != 200:
+                raise self._map_status(response.status_code, 'download')
+            try:
+                for chunk in response.iter_content(CHUNK_SIZE):
+                    if time.monotonic() >= deadline:
+                        raise errors.DeliveryError(errors.REMOTE_UNKNOWN, 'download deadline exceeded')
+                    if not chunk:
+                        continue
+                    size += len(chunk)
+                    if size > expected_size:
+                        raise errors.DeliveryError(errors.REMOTE_INTEGRITY, 'download exceeds expected size')
+                    digest.update(chunk)
+                    handle.write(chunk)
+            except errors.DeliveryError:
+                raise
+            except OSError:
+                raise errors.DeliveryError(errors.IO_ERROR, 'download stream or output failed') from None
+            except Exception:
+                raise errors.DeliveryError(errors.REMOTE_UNKNOWN, 'download stream interrupted') from None
+        finally:
+            response.close()
+        if size != expected_size or digest.hexdigest() != expected_sha256:
+            raise errors.DeliveryError(errors.REMOTE_INTEGRITY, 'download content differs from saved archive')
+        return {'sha256': digest.hexdigest(), 'size': size}
+
     def verify_download(self, key, expected_sha256, expected_size) -> dict:
         if not isinstance(expected_sha256, str) or not _SHA256_HEX.match(expected_sha256):
             raise errors.DeliveryError(errors.CONFIG_INVALID, "expected_sha256 must be 64 lowercase hex chars")
