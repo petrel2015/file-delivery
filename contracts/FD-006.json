@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-006",
+  "revision": 1,
+  "objective": "Integrate accepted file-delivery core into a usable Hermes project skill and thin optional official-MCP stdio server; preserve safe idempotency/diagnostics and distinguish protocol, host and autonomous-workflow evidence.",
+  "scope": [
+    ".agents/skills/file-delivery/SKILL.md",
+    ".agents/skills/file-delivery/references/host-integration.md",
+    "src/file_delivery/mcp_server.py",
+    "pyproject.toml",
+    "tests/fd006/test_fd006_mcp.py"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "behavior": "Create .agents/skills/file-delivery/SKILL.md with valid name=file-delivery and concise descriptive frontmatter, no shell/template autoexecution. Explain installed CLI/MCP routing for plan, encrypted pack/verify, idempotent local/Qiniu delivery, persisted status, revoke/cleanup and one-recipient SMTP. Preserve explicit user action scope without repeated confirmation of already authorized commands; ask only for missing config paths, recipient or genuinely missing external-operation/model-resource authority, never raw credentials. Stable delivery and notification keys; UNKNOWN requires inspect existing status and stop, not new key/implicit resend. Distinguish upload/link-verified/channel-accepted/receipt/read and object-deleted/old-link availability. No hardcoded personal paths, provider account, mailbox, credentials or invented success. Skill must be actionable from documented CLI help and existing core error codes, not prose-only capability claims.",
+      "verification": "skill"
+    },
+    {
+      "id": "AC-2",
+      "behavior": "Add optional mcp extra pinning official mcp==2.2.0; base dependencies stay empty, archive/qiniu extras unchanged. Independent file-delivery-mcp console script targets file_delivery.mcp_server:main; importing base package and executing existing CLI plan must not import/require mcp. Server factory create_server() returns official v2 MCPServer via from mcp.server import MCPServer; default execution is stdio only, no HTTP listener, daemon or model calls. Missing optional extra yields brief sanitized stderr and exit2 with no stdout protocol garbage. Do not upgrade Hermes dependencies; host config changes are performed separately with private backup.",
+      "verification": "package"
+    },
+    {
+      "id": "AC-3",
+      "behavior": "Expose typed tools plan,pack,verify,deliver_local,status_local,deliver_qiniu,status_qiniu,revoke_qiniu,cleanup_qiniu,send_email,status_email; parameters mirror accepted core APIs without store/transport/checkpoint injections or secret-byte arguments. Use direct existing Python core calls exactly once per valid request, no shell-command interpolation, subprocess CLI wrapping, duplicate workflow/state machines or automatic tool retry. cleanup_qiniu defaults dry_run=true. Preserve user keys and task state including TASK_REVOKED, LINK_EXPIRED, IDEMPOTENCY_CONFLICT, REMOTE_UNKNOWN, SMTP_UNKNOWN and accepted-message no-resend behavior. Freeze notification argument names against accepted FD005 before dispatch. Return structured core dictionaries and private artifact paths; do not expose raw signed URL/password/SMTP key in generic tool responses/resources.",
+      "verification": "routing"
+    },
+    {
+      "id": "AC-4",
+      "behavior": "Validate typed tool schemas and reject missing/extra/invalid primitive arguments before core side effects; preserve strict booleans versus integer policy values rather than coerce true into1. Business DeliveryError returns MCP error result with original stable error code and sanitized message; unexpected exceptions produce INTERNAL_ERROR without original text/traceback/secrets. Distinguish protocol input validation failures from business errors. Stdout carries only MCP protocol frames; diagnostics stderr only and no credentials, signed URLs/passwords/body or raw config. Tool annotations must be honest: read-only for plan/verify/status; mutating tools not read-only; pack/send not advertised as safely retryable; remote/upload/revoke/email open-world true. Host authorization is conversational/workflow responsibility, annotations are not authorization controls.",
+      "verification": "errors"
+    },
+    {
+      "id": "AC-5",
+      "behavior": "Controller acceptance must run official mcp.Client against actual stdio subprocess using StdioServerParameters pointing to installed entrypoint outside repo, list tools/schemas and perform real plan/pack/verify/deliver_local/status_local calls with temporary Unicode input. Compare manifest hashes, decrypt archive via existing verify, duplicate delivery same task/archive/password, invalid arguments no side effects, structured missing-task/error propagation and server remains usable after failure. A separate legacy initialize/tools-list/tools-call session must exercise installed Hermes-compatible handshake; do not call modern default Client constructor evidence an initialize handshake. In-memory protocol tests may inject core mocks for remote/email routing/error/no-retry, but cannot replace installed stdio roundtrip. No real Qiniu/SMTP or model calls in deterministic qualification.",
+      "verification": "protocol"
+    },
+    {
+      "id": "AC-6",
+      "behavior": "Provide concise host integration instructions in skill/reference: trust project, verify exact skill loading, configure absolute installed stdio command with no credentials in MCP env/config, test tool discovery, then permitted deterministic tool calls. Host-side trust/install/config edits and evidence follow deterministic candidate acceptance. Actual Hermes project skill load, MCP connection and a permitted tool call are required for host integration acceptance. Model-driven Hermes independent delivery/error diagnosis is a distinct final product gate needing an already authorized inference resource and scenario evidence; discovery/test alone must never be labeled independent model delivery. Honor the already-confirmed product requirement: for an authorized successful user-requested delivery, Skill presents link,password,size,expiry in the intended private reply by reading the existing protected handoff_file and password_file through the host file-reading facility; treat that reply/session as the intentional delivery record. Never expose SMTP/Qiniu credentials. If recipient email was requested, core SMTP owns sending and Skill reports channel status. Ordinary CLI/MCP results and diagnostic/audit logs stay paths-only/redacted; no combined secret artifact or secret-reveal MCP tool is added. If host has no authorized file-reading facility, honestly return the two private paths and explain the missing presentation capability rather than claim unified delivery.",
+      "verification": "host-boundary"
+    }
+  ],
+  "preferences": [
+    "Keep skill concise and progressive; references only for actual setup/diagnostic detail. No generic agent framework or alternate provider implementation.",
+    "Equivalent SDK usage accepted; v2 API must be qualified against pinned artifact rather than guessed from v1 FastMCP examples."
+  ],
+  "context": [
+    "FD005 API frozen by its accepted tests; no business core semantic changes in this integration.",
+    "Direct Codex implementation and self-review; historical Worker evidence remains unchanged.",
+    "Deterministic tests, host connection and tool calls are separate from authorized inference and real provider integration."
+  ],
+  "execution": {
+    "owner": "Codex",
+    "mode": "direct",
+    "authority": "User instructed direct completion without AgentRelay on 2026-09-30",
+    "worker_calls": 0
+  }
+}

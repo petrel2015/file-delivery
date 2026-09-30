@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-006",
+  "execution": "direct Codex",
+  "contract_sha256": "568a81a58de9097df3fc82c6aa75e01511e25e168230ebfb35d98e3584200b43",
+  "checks": {
+    "tests/fd006/test_fd006_mcp.py": "f64e96e86223a935bde68ad33cc422e0d28141e09378669a649c8874c50e21e0"
+  },
+  "external_gates": [
+    "Hermes actual skill load and configured MCP call",
+    "Model-driven scenario with authorized inference resource",
+    "Qiniu and SMTP live integration recorded separately"
+  ]
+}
