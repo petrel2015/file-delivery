@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-005-diagnostic-fix",
+  "execution": "direct Codex",
+  "worker_submissions": 0,
+  "codex_direct_self_review_count": 1,
+  "money_cost": null,
+  "problem": "A corrupt SMTP code on an unknown/nonaccepted row could reach status output without validation.",
+  "change": "Every nonnull persisted SMTP code must be a positive integer2xx; accepted state additionally requires a code. Corrupt records fail with STATE_INVALID before output or resubmission.",
+  "validation": {
+    "tests": 97,
+    "exit_code": 0,
+    "log_sha256": "d07c66d17db552b79b364b66438bac45e8497f02e444ec162313a55729d4a63a",
+    "regression_sha256": "9ad99ebf73724690f2ce3ddc2d980802b5421288a67c4405f897c3292f95ae9a"
+  },
+  "real_provider_calls": 0,
+  "independent_review": false
+}

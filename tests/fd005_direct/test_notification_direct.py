@@ -60,3 +60,10 @@ class DirectRegressions(unittest.TestCase):
         self.assertIsNone(contacts.parse_addr_spec('a@'+('a'*64)+'.test'))
         self.t.write_config(host='::1');self.assertEqual(notification.load_smtp_config(self.t.config)['host'],'::1')
         self.t.write_config(host='invalid..host');self.t.failure('CONFIG_INVALID',lambda:notification.load_smtp_config(self.t.config))
+
+    def test_unknown_smtp_code_cannot_leak_raw_record(self):
+        t=self.t;t.send()
+        with sqlite3.connect(t.f.state/'notifications.sqlite3') as db:
+            db.execute("UPDATE notifications SET state='unknown',last_error='SMTP_UNKNOWN',smtp_code=?",(fixture.SENTINEL,))
+        t.failure('STATE_INVALID',t.status);t.failure('STATE_INVALID',t.send)
+        self.assertEqual(t.count('submit'),1)

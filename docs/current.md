@@ -45,12 +45,12 @@ file-delivery status --state-dir /absolute/private/state --key delivery-001 --js
 
 ## 验证与证据
 
-FD-005：157项业务测试、96项全量控制器/直接回归验收通过（其中26项SMTP固定验收和7项新增安全/恢复回归）。新回归覆盖私有路径、摘要替换、损坏通知记录、DATA后数据库提交失败不重发。
+FD-005：157项业务测试、97项全量控制器/直接回归验收通过（其中26项SMTP固定验收和8项新增安全/恢复回归）。新回归覆盖私有路径、摘要替换、损坏通知记录、DATA后数据库提交失败不重发。
 
 FD-006：7项控制器验收通过；从仓库外安装wheel，以官方Client实际执行 modern和legacy stdio、Unicode计划/加密/校验、本地幂等及错误恢复。真实Hermes自身SDK2.0.0连接成功；实际加载Skill，调用plan/deliver_local/status_local并验证摘要、复用及TASK_NOT_FOUND诊断。11个服务器业务工具；Hermes另注册4个协议辅助工具。无模型或真实服务调用。
 
 - 历史验收：[FD-001](evidence/fd001-accepted.json)、[FD-002](evidence/fd002-accepted.json)、[FD-003](evidence/fd003-accepted.json)、[FD-004A](evidence/fd004a-accepted.json)、[FD-004B](evidence/fd004b-accepted.json)、[FD-004C](evidence/fd004c-accepted.json)。
-- 当前验收：[FD-005](evidence/fd005-accepted.json)、[FD-006](evidence/fd006-accepted.json)、[累计调用/用量](evidence/project-costs.json)。
+- 当前验收：[FD-005](evidence/fd005-accepted.json)及[诊断修复](evidence/fd005-diagnostic-fix.json)、[FD-006](evidence/fd006-accepted.json)、[累计调用/用量](evidence/project-costs.json)。
 
 累计24次历史Worker提交，15次修复，19轮独立Worker候选审查；直接完成阶段另记自审，不冒充独立审查。已观察9,490,409 provider tokens；FD-001历史两次超时导致总体用量不完整。货币及Codex用量仍unknown/null。
 

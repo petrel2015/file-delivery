@@ -488,7 +488,9 @@ def _validate_notification_row(row) -> None:
             raise ValueError
         if row["retryable"] != int(state in (STATE_PREPARED, STATE_FAILED)):
             raise ValueError
-        if state == STATE_ACCEPTED and not _positive(row["smtp_code"]):
+        if row["smtp_code"] is not None and not _positive(row["smtp_code"]):
+            raise ValueError
+        if state == STATE_ACCEPTED and row["smtp_code"] is None:
             raise ValueError
     except (ValueError, KeyError, IndexError, TypeError):
         raise _state_invalid("notification record is invalid") from None
