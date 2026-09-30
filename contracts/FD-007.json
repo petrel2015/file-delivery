@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-007",
+  "objective": "Expose complete email delivery and link sharing as the Skill's primary intents, with a deterministic mobile-friendly HTML email notification.",
+  "scope": ["src/file_delivery/notification.py", "src/file_delivery/email_template.py", "tests/test_notification.py", "tests/test_email_template.py", ".agents/skills/file-delivery/SKILL.md", "docs/smtp-delivery.md", "docs/current.md", "docs/evidence/fd007-accepted.json"],
+  "acceptance": [
+    "Email intent routes validated inputs through encrypted remote delivery and then one-recipient SMTP; sharing returns URL, archive password, size and expiry without sending mail. Existing operation keys and unknown/no-resend behavior are preserved.",
+    "Core email has multipart/alternative UTF-8 plain text and deterministic HTML. HTML contains a download button, fallback URL, archive password, size and readable timezone-explicit expiry. Inline styles and fluid table layout support narrow screens, without scripts, external images or trackers.",
+    "All dynamic HTML text and attributes are escaped. Preview/test artifacts contain only synthetic data; real secrets remain confined to the existing protected handoff/password files and intended delivery message.",
+    "Project and installed Codex Skill agree on intent routing. Missing SMTP configuration blocks email before uploading a new file; ask for configuration path, never raw credentials.",
+    "Validate MIME roundtrip, HTML content/escaping, unchanged notification idempotency and unknown recovery, and visual desktop/mobile preview. Record external SMTP acceptance as pending; no actual upload or email in this implementation task."
+  ],
+  "preferences": ["A system notification style, not a full web sharing portal. Password means AES archive password; no browser extraction-code gate is claimed."],
+  "compatibility": "FD-005 required a fixed text message. HTML multipart is an additive new requirement; its one frozen test assuming message.get_content() at the top level will be recorded as superseded, not rewritten or relabeled as an old acceptance failure. Plain-part contents and previous privacy/recovery assertions remain covered.",
+  "execution": {"owner": "Codex", "mode": "direct", "worker_calls": 0, "external_operations": false, "usage": null, "monetary_cost": null}
+}
