@@ -1,0 +1,18 @@
+{
+  "work_id": "FD-008",
+  "revision": 1,
+  "base": "ec7b7a2",
+  "owner": "Codex",
+  "scope": ["src/file_delivery/cloud.py", "src/file_delivery/qiniu_store.py", "src/file_delivery/notification.py", "src/file_delivery/cli.py", "src/file_delivery/mcp_server.py", "tests/test_cloud.py", "tests/test_qiniu_store.py", ".agents/skills/file-delivery/", "docs/"],
+  "acceptance": [
+    "Paginated live bucket listing with validated limits, prefix and continuation marker; correlate owned ledger/manifests, original filenames searchable; distinguish unmanaged objects, do not guess file matches.",
+    "Owned archive download with configuration-identity binding, streaming hash/size verification, private temporary file, atomic no-clobber publication; no original source paths needed; failed transfers leave no partial destination.",
+    "Immutable versioned handoffs with stable renewal key, persisted deadline/digest before protected publication, task lock shared with revocation, bounded live integrity verification, preserve original handoff and notification fingerprints; no upload/repack, original password reused.",
+    "Email optionally selects a link version, validates owned protected artifact and original encrypted bundle, preserves unknown/no-resend semantics; CLI/MCP expose list/download/renew/status-link with strict schemas and sanitized outputs.",
+    "Host-neutral skill synchronized, real Qiniu existing synthetic object list/download/renew validated with zero uploads, Claude host read-only preflight then authorized project configuration if available; no model inference charge or emails without resolved SMTP configuration and explicit recipient."
+  ],
+  "preferences": ["Download encrypted ZIP only; extraction remains a separately scoped feature", "Cloud listing paginates explicitly, does not auto-scan entire bucket"],
+  "worker_calls": 0,
+  "usage": null,
+  "monetary_cost": null
+}
