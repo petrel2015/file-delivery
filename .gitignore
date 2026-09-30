@@ -9,3 +9,5 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+
+.local-evidence/
