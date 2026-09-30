@@ -58,18 +58,29 @@
       "money_cost": null,
       "codex_review_count": 5,
       "status": "accepted_offline_revocation_cleanup"
+    },
+    {
+      "work_id": "FD-005",
+      "worker_submissions": 1,
+      "observed_provider_tokens": 1796239,
+      "usage_complete": true,
+      "money_cost": null,
+      "codex_review_count": 0,
+      "codex_direct_self_review_count": 1,
+      "status": "direct_completion_after_historical_worker_candidate"
     }
   ],
-  "worker_submissions": 23,
+  "worker_submissions": 24,
   "repairs": {
     "ordinary": 12,
     "explicit_additional": 3,
     "total": 15
   },
   "codex_review_count": 19,
-  "observed_provider_tokens": 7694170,
+  "observed_provider_tokens": 9490409,
   "usage_complete": false,
   "money_cost": null,
   "codex_usage": null,
-  "scope": "All real Worker submissions through FD004C, including rejected candidates and interruptions. Technical delivery remains separate from actual service integration; historical unknown usage/cost is preserved."
+  "scope": "Historical Worker submissions through FD005, including failures. User switched to direct Codex completion on 2026-09-30; no new Worker calls after takeover. Direct self-review is separate from independent Worker reviews. Unknown usage and money remain unknown.",
+  "codex_direct_self_review_count": 1
 }

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-005",
+  "status": "accepted_offline_smtp",
+  "execution": "direct Codex takeover",
+  "historical_candidate_sha": "2518d69b52f091d37b33dc52067e766ad32b3a5e",
+  "historical_worker_submissions": 1,
+  "historical_provider_tokens": 1796239,
+  "new_worker_calls": 0,
+  "codex_direct_self_review_count": 1,
+  "independent_review": false,
+  "money_cost": null,
+  "contract_sha256": "0753eb599655e2ced550d13b4b3aa50b944a42b48f75eef881b1f421eb5ec958",
+  "validation": [
+    {
+      "log": "fd005-unit-final.log",
+      "tests": 157,
+      "exit_code": 0,
+      "sha256": "594cca3f2acc772ccd431858ba768fa9461699b5821fc15f8050ad7ded00acff"
+    },
+    {
+      "log": "fd005-all-fixed-final2.log",
+      "tests": 96,
+      "exit_code": 0,
+      "sha256": "e68aa3e013dfda14c2fb3b33d92f8b7eec2511f9229d8caa51a6ecc9f3fbd110"
+    },
+    {
+      "log": "fd005-fixed-final.log",
+      "tests": 26,
+      "exit_code": 0,
+      "sha256": "d73ce82933c41f5bf5a5b51e752c41cb543b7001ce7bdb268187900661b0df33"
+    },
+    {
+      "log": "fd005-regressions-final.log",
+      "tests": 7,
+      "exit_code": 0,
+      "sha256": "bd0358b94791eee1fa8d361965baa82efee781f5fc0c9834072afebc3c13c932"
+    }
+  ],
+  "failure_history": [
+    {
+      "kind": "regression fixture",
+      "detail": "Fixture used nonexistent remote-locks directory; corrected to actual locks; production unchanged for this failure."
+    },
+    {
+      "kind": "harness setup",
+      "detail": "Whole fixed suite initially blocked in 3 install tests by missing setuptools; installed project build tools and reran all96 successfully."
+    }
+  ],
+  "direct_fixes": [
+    "Private ledger, artifact-parent and lock validation",
+    "Archive digest and size binding before SMTP",
+    "Invalid notification row rejection",
+    "Post-DATA database commit failures are uncertain and never resubmitted",
+    "DNS hyphen labels, length and IPv6 SMTP host validation",
+    "TLS/connect stage classification and connection cleanup"
+  ],
+  "live_smtp": "not_run_missing_configuration_and_recipient",
+  "recipient_receipt": "unverified",
+  "recipient_read": "unverified"
+}

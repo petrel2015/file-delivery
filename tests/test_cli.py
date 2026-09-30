@@ -322,5 +322,67 @@ class DeliverQiniuCliTests(unittest.TestCase):
         self.assertNotIn("Traceback", r.stderr)
 
 
+class EmailCliTests(unittest.TestCase):
+    """Offline CLI surface checks for send-email/status-email."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name).resolve()
+        self.state = self.base / "state"
+
+    def run_cli(self, *args):
+        env = {"PYTHONPATH": str(PROJECT / "src"), "PYTHONDONTWRITEBYTECODE": "1",
+               "PATH": "/usr/bin:/bin"}
+        return subprocess.run([sys.executable, "-B", "-m", "file_delivery", *args],
+                              cwd=PROJECT, env=env, capture_output=True, text=True, timeout=60)
+
+    def test_email_help(self):
+        for args in (["send-email", "--help"], ["status-email", "--help"]):
+            with self.subTest(args=args):
+                r = self.run_cli(*args)
+                self.assertEqual(r.returncode, 0)
+                self.assertTrue(r.stdout.strip())
+
+    def test_status_email_unknown_key_exit2(self):
+        r = self.run_cli("status-email", "--state-dir", str(self.state),
+                         "--key", "nope", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertEqual(value["error"]["code"], "TASK_NOT_FOUND")
+        self.assertNotIn("Traceback", r.stderr)
+
+    def test_send_email_invalid_key_exit2(self):
+        smtp = self.base / "smtp.json"
+        smtp.write_text("{}")
+        r = self.run_cli("send-email", "--state-dir", str(self.state),
+                         "--delivery-key", "dk", "--smtp-config", str(smtp),
+                         "--to", "a@example.test", "--key", "bad key!", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["status"], "error")
+        self.assertEqual(value["error"]["code"], "INVALID_KEY")
+        self.assertNotIn("Traceback", r.stderr)
+
+    def test_send_email_missing_task_exit2(self):
+        password = self.base / "smtp-password.txt"
+        password.write_text("cli-secret\n")
+        password.chmod(0o600)
+        smtp = self.base / "smtp.json"
+        smtp.write_text(json.dumps({
+            "schema_version": 1, "host": "smtp.example.test", "port": 465,
+            "tls": "implicit", "username": "sender@example.test",
+            "password_file": password.name,
+            "from_address": "sender@example.test", "timeout_seconds": 3}))
+        smtp.chmod(0o600)
+        r = self.run_cli("send-email", "--state-dir", str(self.state),
+                         "--delivery-key", "dk", "--smtp-config", str(smtp),
+                         "--to", "a@example.test", "--key", "k1", "--json")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        value = json.loads(r.stdout)
+        self.assertEqual(value["error"]["code"], "TASK_NOT_FOUND")
+
+
 if __name__ == "__main__":
     unittest.main()

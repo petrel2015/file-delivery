@@ -97,6 +97,25 @@ def build_parser() -> argparse.ArgumentParser:
     cleanup_qiniu_parser.add_argument("--config", metavar="FILE", help="owner-only Qiniu config JSON file; required with --execute")
     cleanup_qiniu_parser.add_argument("--execute", action="store_true", help="actually delete due objects (default is a read-only dry run)")
     cleanup_qiniu_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+    send_email_parser = subparsers.add_parser(
+        "send-email",
+        help="email one verified remote handoff to a single mailbox over TLS SMTP",
+    )
+    send_email_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
+    send_email_parser.add_argument("--delivery-key", required=True, metavar="KEY", help="idempotency key of the delivered remote task")
+    send_email_parser.add_argument("--smtp-config", required=True, metavar="FILE", help="owner-only SMTP config JSON file")
+    send_email_parser.add_argument("--to", required=True, metavar="RECIPIENT", help="recipient mailbox or contact alias")
+    send_email_parser.add_argument("--key", required=True, metavar="KEY", help="notification idempotency key ([A-Za-z0-9_-]{1,64})")
+    send_email_parser.add_argument("--contacts", metavar="FILE", help="owner-only contacts JSON file for alias resolution")
+    send_email_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
+
+    status_email_parser = subparsers.add_parser(
+        "status-email",
+        help="show the persisted email notification for a key (offline)",
+    )
+    status_email_parser.add_argument("--state-dir", required=True, metavar="DIR", help="private remote ledger state directory")
+    status_email_parser.add_argument("--key", required=True, metavar="KEY", help="notification idempotency key")
+    status_email_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
     return parser
 
 
@@ -121,6 +140,14 @@ def main(argv: list[str] | None = None) -> int:
             result = remote.deliver(
                 args.paths, args.root, args.state_dir, args.config, args.key,
                 ttl_seconds=args.ttl_seconds, retention_days=args.retention_days)
+        elif args.command == "send-email":
+            from file_delivery import notification
+            result = notification.send(
+                args.state_dir, args.delivery_key, args.smtp_config, args.to,
+                args.key, contacts_path=args.contacts)
+        elif args.command == "status-email":
+            from file_delivery import notification
+            result = notification.status(args.state_dir, args.key)
         elif args.command == "status-qiniu":
             from file_delivery import remote
             result = remote.status(args.state_dir, args.key)
