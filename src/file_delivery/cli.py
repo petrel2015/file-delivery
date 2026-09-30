@@ -29,6 +29,18 @@ def build_parser() -> argparse.ArgumentParser:
     download_parser.add_argument('--key', required=True)
     download_parser.add_argument('--output-path', required=True)
     download_parser.add_argument('--json', action='store_true')
+    renew_parser = subparsers.add_parser('renew-link', help='create an immutable new link for an existing owned object')
+    renew_parser.add_argument('--config', required=True)
+    renew_parser.add_argument('--state-dir', required=True)
+    renew_parser.add_argument('--delivery-key', required=True)
+    renew_parser.add_argument('--key', required=True, help='stable new link version key')
+    renew_parser.add_argument('--ttl-seconds', type=int, default=604800)
+    renew_parser.add_argument('--json', action='store_true')
+    link_status_parser = subparsers.add_parser('status-link', help='read an immutable link version offline')
+    link_status_parser.add_argument('--state-dir', required=True)
+    link_status_parser.add_argument('--delivery-key', required=True)
+    link_status_parser.add_argument('--key', required=True)
+    link_status_parser.add_argument('--json', action='store_true')
     plan_parser = subparsers.add_parser(
         "plan",
         help="plan a delivery manifest for the given paths",
@@ -121,6 +133,7 @@ def build_parser() -> argparse.ArgumentParser:
     send_email_parser.add_argument("--to", required=True, metavar="RECIPIENT", help="recipient mailbox or contact alias")
     send_email_parser.add_argument("--key", required=True, metavar="KEY", help="notification idempotency key ([A-Za-z0-9_-]{1,64})")
     send_email_parser.add_argument("--contacts", metavar="FILE", help="owner-only contacts JSON file for alias resolution")
+    send_email_parser.add_argument('--link-key', help='existing immutable renewed link version')
     send_email_parser.add_argument("--json", action="store_true", help="emit the result as JSON (default)")
 
     status_email_parser = subparsers.add_parser(
@@ -144,6 +157,13 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command in ('download', 'download-qiniu'):
             from file_delivery import cloud
             result = cloud.download(args.state_dir, args.config, args.key, args.output_path)
+        elif args.command == 'renew-link':
+            from file_delivery import cloud
+            result = cloud.renew_link(args.state_dir, args.config, args.delivery_key,
+                args.key, ttl_seconds=args.ttl_seconds)
+        elif args.command == 'status-link':
+            from file_delivery import cloud
+            result = cloud.link_status(args.state_dir, args.delivery_key, args.key)
         elif args.command == "plan":
             result = planning.plan(args.paths, args.root)
         elif args.command == "pack":
@@ -165,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
             from file_delivery import notification
             result = notification.send(
                 args.state_dir, args.delivery_key, args.smtp_config, args.to,
-                args.key, contacts_path=args.contacts)
+                args.key, contacts_path=args.contacts, link_key=args.link_key)
         elif args.command == "status-email":
             from file_delivery import notification
             result = notification.status(args.state_dir, args.key)

@@ -85,10 +85,10 @@ def create_server():
 
     def send_email(state_dir: StrictStr, delivery_key: StrictStr, smtp_config: StrictStr,
                    recipient: StrictStr, notification_key: StrictStr,
-                   contacts_path: StrictStr | None = None) -> CallToolResult:
+                   contacts_path: StrictStr | None = None, link_key: StrictStr | None = None) -> CallToolResult:
         """Send one recipient the existing protected delivery; SMTP_UNKNOWN must never be resubmitted."""
         return call(notification.send, state_dir=state_dir, delivery_key=delivery_key, smtp_config=smtp_config,
-                    recipient=recipient, notification_key=notification_key, contacts_path=contacts_path)
+                    recipient=recipient, notification_key=notification_key, contacts_path=contacts_path, link_key=link_key)
 
     def status_email(state_dir: StrictStr, notification_key: StrictStr) -> CallToolResult:
         """Read persisted email state; channel acceptance does not prove receipt or reading."""
@@ -106,12 +106,22 @@ def create_server():
         """Download a selected owned encrypted archive, verify SHA256, never overwrite an existing destination."""
         return call(cloud.download, state_dir=state_dir, config_path=config_path, key=key, output_path=output_path)
 
-    for fn in (plan, verify, status_local, status_qiniu, status_email):
+    def renew_link(state_dir: StrictStr, config_path: StrictStr, delivery_key: StrictStr,
+                   link_key: StrictStr, ttl_seconds: StrictInt = 604800) -> CallToolResult:
+        """Create an immutable link version for an existing owned object, with no upload or repack."""
+        return call(cloud.renew_link, state_dir=state_dir, config_path=config_path,
+                    delivery_key=delivery_key, link_key=link_key, ttl_seconds=ttl_seconds)
+
+    def status_link(state_dir: StrictStr, delivery_key: StrictStr, link_key: StrictStr) -> CallToolResult:
+        """Read a selected link version offline, including expiry and source delivery state."""
+        return call(cloud.link_status, state_dir=state_dir, delivery_key=delivery_key, link_key=link_key)
+
+    for fn in (plan, verify, status_local, status_qiniu, status_email, status_link):
         register(fn, readonly=True)
     register(list_qiniu, readonly=True, external=True)
     for fn in (pack, deliver_local):
         register(fn)
-    for fn in (deliver_qiniu, revoke_qiniu, cleanup_qiniu, send_email, download_qiniu):
+    for fn in (deliver_qiniu, revoke_qiniu, cleanup_qiniu, send_email, download_qiniu, renew_link):
         register(fn, external=True)
     return server
 

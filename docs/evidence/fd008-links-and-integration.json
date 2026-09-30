@@ -1,0 +1,107 @@
+{
+  "work_id": "FD-008-links-and-integration",
+  "status": "cloud-features-verified-host-gates-partial",
+  "parent_commit": "3b7c79c",
+  "features": [
+    "immutable existing-object link versions",
+    "offline version status",
+    "version-selecting HTML mail",
+    "host-neutral skill routing"
+  ],
+  "checks": {
+    "business_tests": 177,
+    "direct_notification_regressions": 8,
+    "preserved_fd005_lifecycle_checks": 25,
+    "cloud_tests_in_business_suite": 14,
+    "skill_validator": "valid",
+    "git_diff_check": "passed"
+  },
+  "real_qiniu": {
+    "existing_object_reused": true,
+    "uploads": 0,
+    "archive_size": 243,
+    "archive_sha256": "be5458d16a943f007b97a4bc39b04e9ba6c1c7d729017f8a1134d91921a92fd3",
+    "exact_new_link_download_verified": true,
+    "same_link_key_reused": true
+  },
+  "packaged_stdio": [
+    {
+      "mode": "auto",
+      "tools": 15,
+      "live_list": true,
+      "renewal_reused": true,
+      "version_status": true,
+      "download_sha256_verified": true,
+      "invalid_boolean_rejected": true,
+      "server_usable_after_error": true,
+      "uploads": 0
+    },
+    {
+      "mode": "legacy",
+      "tools": 15,
+      "live_list": true,
+      "renewal_reused": true,
+      "version_status": true,
+      "download_sha256_verified": true,
+      "invalid_boolean_rejected": true,
+      "server_usable_after_error": true,
+      "uploads": 0
+    }
+  ],
+  "wheel_sha256": "f6fcdda390a486b479838529c80eeee3d998a1bbccc5cfd79113a2aaff3ad2fe",
+  "fingerprints": {
+    ".agents/skills/file-delivery/SKILL.md": "42f7912d44162eb1171b83b8b9074efb227f0133db72f66ea91ea20e31a15937",
+    "src/file_delivery/__init__.py": "fcef8d8a769971f2eb66906b069512e62cefd567214cdef8de53c6055d61b9fe",
+    "src/file_delivery/__main__.py": "64e9a0bfbe47538516691fc11a76cd35048840fc9856f2254c0f9d60ff4b0515",
+    "src/file_delivery/archive.py": "7e43747fdb0c54586046a7d5fa731a55aaa9c2f5f19f3a45edaf35934ab95b82",
+    "src/file_delivery/cli.py": "e3ce6b6510fb416631923bb563f918012bec54a1ac97b52a242bf100703a8309",
+    "src/file_delivery/cloud.py": "75631e5a9d3e8a99527c15597d2322304b3702a4d6c2a5eb09c7375ca1e0aa8d",
+    "src/file_delivery/contacts.py": "ea75e0be46a7ba9f34b21d03f63e33319fc0aadd7c6ee8932235bedfda74fe0c",
+    "src/file_delivery/email_template.py": "00b67604e4935e607d1c96a2c4df9691428acd35f8b1e98cb012e9230107876e",
+    "src/file_delivery/errors.py": "0114b1b5da3ef937254b20c9281581f7ca409cac86934e801be2e19593165d60",
+    "src/file_delivery/ledger.py": "c65899d915b560a163652b08c206053228772b1b1c594103cbae6a94fc685b07",
+    "src/file_delivery/mcp_server.py": "df913a4b52008349a2b7f1f870931fcaab4e870092c65d91c87c53e11a908602",
+    "src/file_delivery/notification.py": "7ffe78f77a0bab86713063f188fa7304299b48b26ce5fefc4d139e8a15436108",
+    "src/file_delivery/planning.py": "66c53b198cea92c03aaa173b1acc0ef709e027896b397e22d383899a2b80356e",
+    "src/file_delivery/qiniu_store.py": "190f99f6680a84883032c697dbbc82b156e6fc6270d39583e1f4eb3fe75a9012",
+    "src/file_delivery/remote.py": "67cad783f9f9e5bd0ee7c37bf15bec4e832faf45926e78231b6edee481195048",
+    "tests/test_cloud.py": "b662120390abd2c0e51fe4803c31b2a107b3f2621c4b3310432a7b1f0bd18d1e"
+  },
+  "hermes": {
+    "skill_loaded": true,
+    "skill_sha256": "42f7912d44162eb1171b83b8b9074efb227f0133db72f66ea91ea20e31a15937",
+    "sdk_version": "2.0.0",
+    "business_tools": 15,
+    "registered_tools": 19,
+    "plan_hash_verified": true,
+    "local_delivery_verified": true,
+    "duplicate_reused": true,
+    "status_verified": true,
+    "missing_task_diagnostic_verified": true,
+    "model_calls": 0,
+    "provider_calls": 0
+  },
+  "failures_preserved": [
+    {
+      "suite": "frozen FD006",
+      "total": 7,
+      "passed": 5,
+      "failures": 2,
+      "reason": "Two frozen checks require exactly the previous 11 tools. New 15-tool schema/routing and installed modern/legacy qualification replace only that obsolete assumption; frozen tests unchanged."
+    },
+    {
+      "attempt": "stdio attempt 1",
+      "reason": "Local test fixture used a macOS symlinked temporary path rejected by planner. Fixture resolved to real path; verified download from first attempt retained and new output paths used for later attempts."
+    }
+  ],
+  "pending": {
+    "claude_host": "No executable/app discovered; adapter example and official setup provided, actual Claude host unverified.",
+    "smtp": "No SMTP config discovered or test recipient supplied; no actual email sent."
+  },
+  "worker_calls": 0,
+  "self_review_rounds": 2,
+  "independent_review_rounds": 0,
+  "usage": null,
+  "monetary_cost": null,
+  "compatibility": "Retained a separately committed concurrent transport diagnostic fix (3b7c79c); its tests are included in the final 177-test suite."
+}

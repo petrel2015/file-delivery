@@ -418,6 +418,12 @@ class QiniuStore:
         self._validate_key(key)
         self._validate_ttl(ttl_seconds)
         deadline = int(time.time()) + ttl_seconds
+        return self.signed_url_at(key, deadline)
+
+    def signed_url_at(self, key, deadline) -> dict:
+        self._validate_key(key)
+        if not _is_int(deadline) or not 1 <= deadline - int(time.time()) <= MAX_LINK_TTL:
+            raise _invalid('invalid fixed link deadline')
         base = f"{self._origin_url(key)}?e={deadline}"
         token = self._auth.token(base)
         return {"url": f"{base}&token={token}", "expires_at": deadline}
@@ -429,7 +435,15 @@ class QiniuStore:
                 or not _is_int(expected_size) or expected_size < 0):
             raise _invalid('invalid expected download identity')
         signed = self.signed_url(key, min(self._timeout + 30, MAX_LINK_TTL))
-        response = self._request('GET', signed['url'], stream=True)
+        return self._read_download(signed['url'], handle, expected_sha256, expected_size)
+
+    def verify_link(self, url, expected_sha256, expected_size):
+        """Verify the exact immutable handoff URL, without storing its body."""
+        return self._read_download(url, None, expected_sha256, expected_size)
+
+    def _read_download(self, url, handle, expected_sha256, expected_size):
+        self._validate_probe_url(url)
+        response = self._request('GET', url, stream=True)
         digest, size = hashlib.sha256(), 0
         started = time.perf_counter()
         deadline = time.monotonic() + self._timeout
@@ -446,7 +460,8 @@ class QiniuStore:
                     if size > expected_size:
                         raise errors.DeliveryError(errors.REMOTE_INTEGRITY, 'download exceeds expected size')
                     digest.update(chunk)
-                    handle.write(chunk)
+                    if handle is not None:
+                        handle.write(chunk)
             except errors.DeliveryError:
                 raise
             except Exception as exc:

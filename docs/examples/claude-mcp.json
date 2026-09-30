@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "file-delivery": {
+      "command": "/absolute/project/.venv/bin/file-delivery-mcp",
+      "args": []
+    }
+  }
+}

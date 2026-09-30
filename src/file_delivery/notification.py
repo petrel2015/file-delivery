@@ -203,7 +203,7 @@ def _row_get(row, name):
         return None
 
 
-def _load_remote_task(state_real: Path, delivery_key: str) -> dict:
+def _load_remote_task(state_real: Path, delivery_key: str, *, require_deadline=True) -> dict:
     db_path = state_real / remote.DB_NAME
     if not os.path.lexists(db_path):
         raise errors.DeliveryError(
@@ -242,7 +242,7 @@ def _load_remote_task(state_real: Path, delivery_key: str) -> dict:
     if not _is_int(archive_size) or archive_size < 0:
         raise _state_invalid("remote task has no recorded archive size")
     expires_at = _row_get(row, "expires_at")
-    if not _is_int(expires_at):
+    if require_deadline and not _is_int(expires_at):
         raise _state_invalid("remote task has no recorded link deadline")
     password_file = _row_get(row, "password_file")
     expected_password = state_real / remote.BUNDLES_DIR / task_id / archive.PASSWORD_NAME
@@ -262,7 +262,8 @@ def _load_remote_task(state_real: Path, delivery_key: str) -> dict:
 
 
 def _load_validated_handoff(state_real: Path, task: dict) -> dict:
-    handoff_path = state_real / remote.HANDOFFS_DIR / f"{task['task_id']}.json"
+    handoff_path = (Path(task['version_handoff_path']) if 'version_handoff_path' in task
+                    else state_real / remote.HANDOFFS_DIR / f"{task['task_id']}.json")
     _check_state_parents(state_real, handoff_path)
     _validate_private_file(handoff_path, errors.STATE_INVALID, "handoff file")
     if task["url_sha256"] is None:
@@ -510,7 +511,7 @@ def _safe_errors(fn):
 
 @_safe_errors
 def send(state_dir, delivery_key, smtp_config, recipient, notification_key, *,
-         contacts_path=None, transport=None, checkpoint=None) -> dict:
+         contacts_path=None, link_key=None, transport=None, checkpoint=None) -> dict:
     """Idempotently notify one mailbox about one verified remote handoff."""
     notification_key = ledger._validate_key(notification_key)
     delivery_key = ledger._validate_key(delivery_key)
@@ -518,7 +519,10 @@ def send(state_dir, delivery_key, smtp_config, recipient, notification_key, *,
     config = load_smtp_config(smtp_config)
 
     state_real = _state_dir_real(state_dir)
-    task = _load_remote_task(state_real, delivery_key)
+    task = _load_remote_task(state_real, delivery_key, require_deadline=link_key is None)
+    if link_key is not None:
+        from . import cloud
+        task = cloud.apply_link_version(state_real, task, link_key)
     fingerprint = _fingerprint(delivery_key, task, recipient_addr, config)
 
     locks_dir = state_real / remote.LOCKS_DIR
