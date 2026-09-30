@@ -15,6 +15,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="Offline read-only delivery manifest planner.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
+    list_parser = subparsers.add_parser('list-qiniu', aliases=['list'], help='list one live bucket page and correlate original filenames')
+    list_parser.add_argument('--config', required=True)
+    list_parser.add_argument('--state-dir')
+    list_parser.add_argument('--prefix', default='')
+    list_parser.add_argument('--marker', default='')
+    list_parser.add_argument('--limit', type=int, default=100)
+    list_parser.add_argument('--query', default='')
+    list_parser.add_argument('--json', action='store_true')
     plan_parser = subparsers.add_parser(
         "plan",
         help="plan a delivery manifest for the given paths",
@@ -123,7 +131,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
-        if args.command == "plan":
+        if args.command in ('list', 'list-qiniu'):
+            from file_delivery import cloud
+            result = cloud.list_files(args.config, args.state_dir, prefix=args.prefix,
+                marker=args.marker, limit=args.limit, query=args.query)
+        elif args.command == "plan":
             result = planning.plan(args.paths, args.root)
         elif args.command == "pack":
             from file_delivery import archive

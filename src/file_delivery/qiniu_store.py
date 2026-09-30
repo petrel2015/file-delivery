@@ -18,7 +18,7 @@ import re
 import stat
 import time
 from pathlib import Path, PurePosixPath
-from urllib.parse import quote, urlsplit
+from urllib.parse import quote, urlsplit, urlencode
 
 from file_delivery import errors
 
@@ -342,6 +342,42 @@ class QiniuStore:
         if not isinstance(etag, str) or not etag or not _is_int(size) or size < 0:
             raise errors.DeliveryError(errors.REMOTE_ERROR, "stat response was malformed")
         return {"key": key, "etag": etag, "size": size}
+
+    def list_objects(self, *, prefix="", marker="", limit=100) -> dict:
+        """One bounded live RSF page; callers explicitly follow the marker."""
+        if (not _is_int(limit) or not 1 <= limit <= 1000
+                or not isinstance(prefix, str) or not isinstance(marker, str)
+                or len(prefix.encode('utf-8')) > 1024 or len(marker) > 4096
+                or any(ord(c) < 32 or ord(c) == 127 for c in prefix + marker)):
+            raise _invalid("invalid list prefix, marker or limit")
+        url = 'https://rsf.qiniuapi.com/list?' + urlencode(
+            {'bucket': self._bucket, 'prefix': prefix, 'marker': marker, 'limit': limit})
+        response = self._request('GET', url, headers=self._management_headers(url))
+        try:
+            if response.status_code != 200:
+                raise self._map_status(response.status_code, 'list')
+            data = response.json()
+            if not isinstance(data, dict) or not isinstance(data.get('items', []), list):
+                raise ValueError
+            next_marker = data.get('marker') or ''
+            if not isinstance(next_marker, str) or len(next_marker) > 4096:
+                raise ValueError
+            items = []
+            for entry in data.get('items', []):
+                key, size, etag, put_time = (entry.get(x) for x in ('key', 'fsize', 'hash', 'putTime'))
+                if (not isinstance(key, str) or not key or not _is_int(size) or size < 0
+                        or not isinstance(etag, str) or not etag
+                        or not _is_int(put_time) or put_time < 0):
+                    raise ValueError
+                items.append({'object_key': key, 'size': size, 'etag': etag,
+                              'uploaded_at': put_time // 10_000_000})
+            if len(items) > limit:
+                raise ValueError
+            return {'items': items, 'next_marker': next_marker}
+        except (ValueError, TypeError, AttributeError):
+            raise errors.DeliveryError(errors.REMOTE_ERROR, 'list response was malformed') from None
+        finally:
+            response.close()
 
     def signed_url(self, key, ttl_seconds=DEFAULT_LINK_TTL) -> dict:
         self._validate_key(key)

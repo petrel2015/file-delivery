@@ -1,0 +1,11 @@
+{
+  "work_id": "FD-008-list",
+  "status": "verified",
+  "unit_tests": 4,
+  "real_qiniu": {"status": "listed", "objects": 1, "owned_objects": 1, "original_files_correlated": true, "next_marker": "", "uploads": 0},
+  "self_review_rounds": 1,
+  "worker_calls": 0,
+  "usage": null,
+  "monetary_cost": null,
+  "notes": "Search covers each explicitly requested page, not a fabricated complete bucket scan. Real listing reused the existing synthetic integration object."
+}

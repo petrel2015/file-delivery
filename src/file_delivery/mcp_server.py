@@ -2,7 +2,7 @@
 import json
 import sys
 
-from . import archive, errors, ledger, notification, planning, remote
+from . import archive, cloud, errors, ledger, notification, planning, remote
 
 
 def create_server():
@@ -92,8 +92,16 @@ def create_server():
         """Read persisted email state; channel acceptance does not prove receipt or reading."""
         return call(notification.status, state_dir=state_dir, notification_key=notification_key)
 
+    def list_qiniu(config_path: StrictStr, state_dir: StrictStr | None = None,
+                   prefix: StrictStr = '', marker: StrictStr = '', limit: StrictInt = 100,
+                   query: StrictStr = '') -> CallToolResult:
+        """One live bucket page, with original filenames for owned tasks; follow next_marker explicitly."""
+        return call(cloud.list_files, config_path=config_path, state_dir=state_dir,
+                    prefix=prefix, marker=marker, limit=limit, query=query)
+
     for fn in (plan, verify, status_local, status_qiniu, status_email):
         register(fn, readonly=True)
+    register(list_qiniu, readonly=True, external=True)
     for fn in (pack, deliver_local):
         register(fn)
     for fn in (deliver_qiniu, revoke_qiniu, cleanup_qiniu, send_email):
