@@ -2,7 +2,7 @@
 
 2026-09-30。用户已改为 Codex 独立完成，不再调用 AgentRelay/ZCode；历史候选、失败和用量保留。
 
-公开仓库：<https://github.com/petrel2015/file-delivery>，分支 main。FD-001～FD-006 的代码入口已实现；真实七牛/SMTP服务和 Hermes 模型驱动验收仍未完成。
+公开仓库：<https://github.com/petrel2015/file-delivery>，分支 main。FD-001～FD-006 的代码入口已实现；真实七牛上传/下载及短期链接过期已通过；撤销/清理、SMTP服务和 Hermes 模型驱动验收仍未完成。
 
 | 特性 | 可用入口 | 业务提交 |
 | --- | --- | --- |
@@ -56,6 +56,6 @@ FD-006：7项控制器验收通过；从仓库外安装wheel，以官方Client�
 
 ## 未完成的外部验收与限制
 
-真实七牛：首次因AK/SK相同返回401，原[失败记录](evidence/qiniu-live-001.json)保留。用户修正密钥后，原任务完成1KiB测试文件的加密上传（ZIP243字节）；七牛真实私有空间查询、上传返回和独立stat均通过，远端大小/ETag与本地一致。七牛域名已成功配置HTTPS，但公共DNS查询files.fluffyeti.com返回NXDOMAIN，下载校验未完成；详见[上传及DNS诊断](evidence/qiniu-live-002.json)。任务保持uploaded，不声称link-verified；原包/密码保留，不重复上传。匿名拒绝、签名下载/hash、原链接过期及删除检查仍未通过。SMTP：等待本地配置路径和测试收件邮箱，尚无真实渠道接受证据。Hermes模型驱动自主交付/诊断：待单次推理通道授权，不由工具闭环替代。
+真实七牛：首次AK/SK相同导致401，[失败记录](evidence/qiniu-live-001.json)保留；修正后已上传1KiB测试文件并stat确认ZIP243字节，[上传及DNS诊断](evidence/qiniu-live-002.json)保留。DNS生效后恢复原任务，HTTPS匿名下载403、签名及原handoff下载200，下载ZIP的SHA256和AES解密/逐文件清单校验均通过；重复请求复用原任务、归档、密码，本次无再次上传。另对同一对象的5秒短期链接验证到期前200、到期后403，未延长原handoff期限。[真实下载/过期验收](evidence/qiniu-live-003.json)。当前主任务link-verified；主链接有效期1小时，测试对象保留策略1天。真实撤销、清理和删除后旧链接行为仍未测试；不声称精确时刻自动删除或大陆性能验收。SMTP：等待本地配置路径和测试收件邮箱，尚无真实渠道接受证据。Hermes模型驱动自主交付/诊断：待单次推理通道授权，不由工具闭环替代。
 
 仅验证本机POSIX单用户场景；尚未验证Windows、分布式运行、大文件性能或长期运行。包和七牛表单上传会把单文件读入内存。AES保护内容，ZIP文件名可见；本机私有权限不等于静态加密/钥匙串保护。
