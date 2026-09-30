@@ -1,0 +1,10 @@
+{
+  "work_id": "FD-008-list-diagnostics",
+  "base_commit": "937ce47",
+  "reason": "Concurrent transport diagnostics classified the new RSF list endpoint as download; correct the stage to list.",
+  "verification": "15 cloud tests pass, including injected ReadTimeout stage and secret-redaction check.",
+  "worker_calls": 0,
+  "self_review_rounds": 1,
+  "usage": null,
+  "monetary_cost": null
+}

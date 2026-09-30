@@ -156,6 +156,18 @@ class CloudTests(unittest.TestCase):
 
 
 class ListProviderTests(unittest.TestCase):
+    def test_list_transport_failure_has_list_stage_without_secret(self):
+        from file_delivery.qiniu_store import QiniuStore
+        from requests.exceptions import ReadTimeout
+        session = mock.Mock()
+        session.request.side_effect = ReadTimeout('private-token-sentinel')
+        store = QiniuStore(access_key='ak', secret_key='sk', bucket='test-bucket', region='z1',
+            download_domain='https://files.example.test', session=session)
+        with self.assertRaises(errors.DeliveryError) as caught: store.list_objects()
+        self.assertEqual(caught.exception.diagnostics['stage'], 'list')
+        self.assertEqual(caught.exception.diagnostics['reason'], 'read_timeout')
+        self.assertNotIn('private-token-sentinel', str(caught.exception))
+
     def test_download_stream_integrity_bounds_and_exact_url_origin(self):
         from file_delivery.qiniu_store import QiniuStore
         response = mock.Mock(status_code=200)

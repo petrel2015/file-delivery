@@ -221,6 +221,8 @@ class QiniuStore:
             return "upload"
         if parts.hostname == UC_HOST:
             return "bucket_check"
+        if parts.hostname == 'rsf.qiniuapi.com':
+            return 'list'
         if parts.hostname == f"rs-{self._region}.qiniuapi.com":
             action = parts.path.split("/")[1]
             return action if action in {"stat", "list", "delete"} else "request"
