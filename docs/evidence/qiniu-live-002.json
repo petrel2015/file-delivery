@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-004-live-002",
+  "status": "uploaded_download_blocked_dns",
+  "started_at": "2026-09-30T12:59:03.878339+00:00",
+  "baseline_sha": "1d63a8a",
+  "resume_existing_task": true,
+  "credential_authentication": "passed",
+  "private_bucket_confirmed": true,
+  "real_upload_http_status": 200,
+  "upload_calls_this_attempt": 1,
+  "remote_object_confirmed": {
+    "object_exists": true,
+    "remote_size": 243,
+    "local_size": 243,
+    "etag_matches": true,
+    "task_status": "uploaded"
+  },
+  "synthetic_input_size": 1024,
+  "archive_size": 243,
+  "archive_sha256": "be5458d16a943f007b97a4bc39b04e9ba6c1c7d729017f8a1134d91921a92fd3",
+  "download_verification": "not_completed",
+  "error_code": "REMOTE_UNKNOWN",
+  "diagnosis": {
+    "public_dns": {
+      "dns_status": 3,
+      "answers": []
+    },
+    "qiniu_domain": {
+      "http_status": 200,
+      "domain": "files.fluffyeti.com",
+      "protocol": "https",
+      "cname": "files-fluffyeti-com-idvs39y.qiniudns.com",
+      "operation_status": "success",
+      "https_enabled": true
+    },
+    "required_dns_record": {
+      "type": "CNAME",
+      "name": "files",
+      "value": "files-fluffyeti-com-idvs39y.qiniudns.com"
+    }
+  },
+  "automatic_upload_retries": 0,
+  "link_available": "unverified",
+  "expiry_behavior": "unverified",
+  "deletion": "not_performed",
+  "smtp": "not_performed",
+  "money_cost": null,
+  "retention_days": 1,
+  "recovery": "Keep the original bundle/password and uploaded task; after DNS resolves, stat and verify the existing object without replacing it.",
+  "private_evidence_sha256": {
+    "stat-confirmation.json": "97d689ff0d5829f7f8a0955fe7bbb2a5173c344f83f83a8bdf5c20a915d3b17d",
+    "public-dns.json": "378256e1b5e2a8e208c35309f3385d27b994ed52ad7a1be3d3427184ce4c7e98",
+    "domain-config.json": "49952056d94a04d9b559e85d79b1090d9d6e12785f39e7ef5eeb308beb7f3961",
+    "result.json": "59c3ab3c74cbf8220fb924ddb7d72409dda9bebb9b10d2d98f38a6c7cd9ee715"
+  }
+}
