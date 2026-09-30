@@ -1,6 +1,6 @@
 # 七牛适配器（FD-004A）
 
-当前提供 Python `QiniuStore` API，已通过离线协议测试和独立审查。尚无远程交付 CLI、远程账本或真实七牛账户验收。完整进展见[当前状态](current.md)，调用和失败证据见[FD-004A验收](evidence/fd004a-accepted.json)。
+当前提供 Python `QiniuStore` API，已通过离线协议测试和独立审查。远程交付 CLI、账本、撤销和清理现已实现；真实七牛账户验收仍未完成。完整进展见[当前状态](current.md)，调用和失败证据见[FD-004A验收](evidence/fd004a-accepted.json)。
 
 ## 安装和配置
 

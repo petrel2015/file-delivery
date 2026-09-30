@@ -47,3 +47,7 @@ SMTP config:
 ## Diagnosing setup
 
 Missing MCP extra: server exits 2, sanitized stderr, no stdout garbage. Connection failure: verify absolute executable path, optional dependencies and host MCP diagnostics. Use `file-delivery plan` to separate core installation from MCP. Core tools return structured `{error:{code,message}}`; their diagnostic messages are sanitized. Never log SMTP body, signed URL, password, full configuration or raw provider replies. Do not substitute cached discovery for an actual permitted call.
+
+## Deterministic host qualification
+
+Run `scripts/verify_hermes_host.py --hermes-source /absolute/hermes-agent` using Hermes's own Python after trust and MCP setup. It reads the exact project Skill, connects only file-delivery, invokes temporary local plan/delivery/status, verifies duplicate reuse and TASK_NOT_FOUND, then closes its connection. It makes no inference or provider calls. Hermes may wrap text JSON under `result` and error JSON under `error`; unwrap those host envelopes when checking core codes. Server discovery reports 11 business tools; Hermes can register additional protocol utility tools.

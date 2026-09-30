@@ -68,6 +68,17 @@
       "codex_review_count": 0,
       "codex_direct_self_review_count": 1,
       "status": "direct_completion_after_historical_worker_candidate"
+    },
+    {
+      "work_id": "FD-006",
+      "worker_submissions": 0,
+      "observed_provider_tokens": null,
+      "usage_complete": false,
+      "money_cost": null,
+      "codex_review_count": 0,
+      "codex_direct_self_review_count": 1,
+      "status": "accepted_protocol_and_deterministic_host_integration",
+      "note": "No Worker or inference calls; Codex direct usage not available."
     }
   ],
   "worker_submissions": 24,
@@ -82,5 +93,5 @@
   "money_cost": null,
   "codex_usage": null,
   "scope": "Historical Worker submissions through FD005, including failures. User switched to direct Codex completion on 2026-09-30; no new Worker calls after takeover. Direct self-review is separate from independent Worker reviews. Unknown usage and money remain unknown.",
-  "codex_direct_self_review_count": 1
+  "codex_direct_self_review_count": 2
 }

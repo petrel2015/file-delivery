@@ -57,5 +57,6 @@
   ],
   "live_smtp": "not_run_missing_configuration_and_recipient",
   "recipient_receipt": "unverified",
-  "recipient_read": "unverified"
+  "recipient_read": "unverified",
+  "business_commit": "bb5e568"
 }

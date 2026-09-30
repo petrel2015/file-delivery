@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "work_id": "FD-006",
+  "candidate_sha": "7521697d305b729228f7204d793d211fb344554e",
+  "status": "accepted_protocol_and_deterministic_host_integration",
+  "execution": "direct Codex",
+  "worker_submissions": 0,
+  "codex_direct_self_review_count": 1,
+  "independent_review": false,
+  "provider_tokens": null,
+  "money_cost": null,
+  "contract_sha256": "568a81a58de9097df3fc82c6aa75e01511e25e168230ebfb35d98e3584200b43",
+  "controller_sha256": "f64e96e86223a935bde68ad33cc422e0d28141e09378669a649c8874c50e21e0",
+  "validation": [
+    {
+      "name": "FD006 contract and installed wheel stdio",
+      "tests": 7,
+      "exit_code": 0,
+      "log_sha256": "3015a46a14c5c35a0bc717f78c75e4a3ddafbc50e21dadb1d6c7204ef1a8c873",
+      "official_sdk": "mcp==2.2.0",
+      "modern_stdio": true,
+      "legacy_initialize_stdio": true,
+      "unicode_pack_verify": true,
+      "local_idempotency": true,
+      "protocol_stdout_checked": true
+    },
+    {
+      "name": "business regression",
+      "tests": 157,
+      "exit_code": 0,
+      "log_sha256": "d51f06255a6ae9db127bf11f1fccf6219736f9810723aeef0667451b81bad52f"
+    },
+    {
+      "name": "skill creator validation",
+      "exit_code": 0,
+      "log_sha256": "db349825903d66adffea3ecf1bd8e1803043e8a71cf1a051235dabc5371f5bb0"
+    }
+  ],
+  "host": {
+    "skill_loaded": true,
+    "skill_sha256": "a4b361fc85092d72e19355ed50c414a214f926e7e6de6afebc88c2fa95f77a75",
+    "hermes_mcp_sdk_version": "2.0.0",
+    "model_calls": 0,
+    "provider_calls": 0,
+    "registered_host_tool_count": 15,
+    "plan_hash_verified": true,
+    "local_delivery": true,
+    "duplicate_reused": true,
+    "status_verified": true,
+    "diagnostic_code": "TASK_NOT_FOUND"
+  },
+  "host_check_script_sha256": "bbc8c782d237804d56a7de06ead6ef1945f78c031a35036eb39d22d96377a478",
+  "configuration_preservation": {
+    "existing_servers_preserved": true,
+    "model_settings_preserved": true,
+    "no_mcp_credentials_added": true,
+    "private_backup_saved": true
+  },
+  "server_business_tools": 11,
+  "model_driven_workflow": "not_run_pending_inference_authority",
+  "real_qiniu": "not_run_missing_config",
+  "real_smtp": "not_run_missing_config_and_recipient",
+  "failure_history": [
+    {
+      "kind": "controller fixture",
+      "detail": "Mac temp path through /var symlink rejected; fixture now passes resolved real paths."
+    },
+    {
+      "kind": "candidate snapshot",
+      "detail": "Initial installed test archived prior HEAD without MCP entrypoint; committed actual candidate and passed installed gate for that fixed commit."
+    },
+    {
+      "kind": "host result envelope",
+      "detail": "Actual Hermes result and error envelopes differ from bare core dict; fixed host checker unwrapping, with no production change."
+    },
+    {
+      "kind": "validator environment",
+      "detail": "Project venv lacked PyYAML; skill validation passed using existing qualified environment."
+    }
+  ],
+  "publication_note": "Candidate was committed for the installed git-archive gate. An earlier concurrent push included that commit before the gate result was collected; the exact published candidate subsequently passed all7 tests. Remaining publication commands are sequential."
+}
